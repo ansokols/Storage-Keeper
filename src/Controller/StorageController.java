@@ -1,8 +1,8 @@
 package Controller;
 
+import DAO.*;
 import Model.*;
 import Model.Cell;
-import Database.ShipmentDataAccessor;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -53,15 +53,25 @@ public class StorageController {
     private String shipmentMode = "supply";
     private static final int numRows = 3;
 
+    private final AreaDaoImpl areaDataAccessor = new AreaDaoImpl();
+    private final CellDaoImpl cellDao = new CellDaoImpl();
+    private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
+    private final SendingDaoImpl sendingDao = new SendingDaoImpl();
+    private final SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
+    private final SupplyDaoImpl supplyDao = new SupplyDaoImpl();
+    private final SupplyMaterialDaoImpl supplyMaterialDao = new SupplyMaterialDaoImpl();
+    private final TypeDaoImpl typeDao = new TypeDaoImpl();
+    private final UnitDaoImpl unitDao = new UnitDaoImpl();
+
     @FXML
     void initialize() {
-        switchButton.setText("Поставки");
-        shipmentComboBox.setItems(FXCollections.observableArrayList(StaticData.getSupplyHashMap().values()));
+        switchButton.setText("Постачання");
+        shipmentComboBox.setItems(FXCollections.observableArrayList(supplyDao.getAll()));
         setAreas();
 
 
         storeButton.setOnAction(event -> {
-            Cell cell = StaticData.getCellHashMap().get(Integer.valueOf(currentCellPane.getId()));
+            Cell cell = cellDao.get(Integer.parseInt(currentCellPane.getId()));
             EditController.initializeData(shipmentMode, cell, materialTable.getSelectionModel().getSelectedItem());
 
             Stage stage = new Stage();
@@ -89,16 +99,16 @@ public class StorageController {
             switch (shipmentMode) {
                 case "supply":
                     shipmentMode = "sending";
-                    switchButton.setText("Отправки");
+                    switchButton.setText("Відправки");
                     storeButton.setText("\uD83D\uDCE4");
-                    shipmentComboBox.setItems(FXCollections.observableArrayList(StaticData.getSendingHashMap().values()));
+                    shipmentComboBox.setItems(FXCollections.observableArrayList(sendingDao.getAll()));
                     break;
 
                 case "sending":
                     shipmentMode = "supply";
-                    switchButton.setText("Поставки");
+                    switchButton.setText("Постачання");
                     storeButton.setText("\uD83D\uDCE5");
-                    shipmentComboBox.setItems(FXCollections.observableArrayList(StaticData.getSupplyHashMap().values()));
+                    shipmentComboBox.setItems(FXCollections.observableArrayList(supplyDao.getAll()));
                     break;
             }
         });
@@ -106,28 +116,28 @@ public class StorageController {
 
         shipmentComboBox.setOnAction(event -> {
             storeButton.setDisable(true);
-            ArrayList<ShipmentMaterial> tempMats = null;
+            List<ShipmentMaterial> tempMats = null;
 
             if (shipmentComboBox.getSelectionModel().getSelectedItem() != null) {
-                ShipmentDataAccessor shipmentDataAccessor = new ShipmentDataAccessor();
                 switch (shipmentMode) {
                     case "supply":
-                        tempMats = shipmentDataAccessor.getSupplyMaterialArrayList(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
+                        tempMats = supplyMaterialDao.getAll(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
                         break;
 
                     case "sending":
-                        tempMats = shipmentDataAccessor.getSendingMaterialArrayList(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
+                        tempMats = sendingMaterialDao.getAll(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
                         break;
                 }
 
+                //TODO Переделать
                 materialTypeColumn.setCellValueFactory(cellData ->
-                        new SimpleStringProperty(StaticData.getTypeHashMap().get(StaticData.getMaterialHashMap().get(cellData.getValue().getMaterialId()).getTypeId()).getName())
+                        new SimpleStringProperty(typeDao.get(materialDao.get(cellData.getValue().getMaterialId()).getTypeId()).getName())
                 );
                 materialNameColumn.setCellValueFactory(cellData ->
-                        new SimpleStringProperty(StaticData.getMaterialHashMap().get(cellData.getValue().getMaterialId()).getName())
+                        new SimpleStringProperty(materialDao.get(cellData.getValue().getMaterialId()).getName())
                 );
                 materialManufacturerColumn.setCellValueFactory(cellData ->
-                        new SimpleStringProperty(StaticData.getMaterialHashMap().get(cellData.getValue().getMaterialId()).getManufacturer())
+                        new SimpleStringProperty(materialDao.get(cellData.getValue().getMaterialId()).getManufacturer())
                 );
                 materialLoadedAmountColumn.setCellValueFactory(cellData ->
                         new SimpleIntegerProperty(cellData.getValue().getLoadedAmount()).asObject()
@@ -159,25 +169,26 @@ public class StorageController {
                         "-fx-border-radius: 2; -fx-border-width: 5; -fx-border-color: #8ff7ab;" +
                         "-fx-cursor: HAND";
 
-        for (Area area : StaticData.getAreaHashMap().values()) {
+        for (Area area : areaDataAccessor.getAll()) {
             GridPane gridPane = new GridPane();
             gridPane.setHgap(5);
             gridPane.setVgap(5);
             gridPane.setPadding(new Insets(0, 10, 10, 10));
 
             int areaId = area.getAreaId();
-            List<Cell> tempCellArrayList = StaticData.getCellHashMap().values().stream().filter(cell ->
+            //TODO Переделать
+            List<Cell> tempCellList = cellDao.getAll().stream().filter(cell ->
                     cell.getAreaId().equals(areaId)).collect(Collectors.toList());
 
             int j = 0;
-            for (int i = 0; i < tempCellArrayList.size(); i++) {
+            for (int i = 0; i < tempCellList.size(); i++) {
                 if (i % numRows == 0) j++;
 
-                Label cellNameLabel = new Label(tempCellArrayList.get(i).getName());
+                Label cellNameLabel = new Label(tempCellList.get(i).getName());
                 cellNameLabel.prefHeight(20);
                 cellNameLabel.setStyle("-fx-font: 16 arial;");
 
-                Label cellTypeLabel = new Label(StaticData.getTypeHashMap().get(tempCellArrayList.get(i).getTypeId()).getName());
+                Label cellTypeLabel = new Label(typeDao.get(tempCellList.get(i).getTypeId()).getName());
                 cellTypeLabel.prefHeight(20);
                 cellTypeLabel.setStyle("-fx-font: 16 arial;");
 
@@ -189,18 +200,18 @@ public class StorageController {
                 cellManufacturerLabel.prefHeight(20);
                 cellManufacturerLabel.setStyle("-fx-font: 16 arial;");
 
-                Label cellCapacityLabel = new Label(tempCellArrayList.get(i).getCapacity().toString());
+                Label cellCapacityLabel = new Label(tempCellList.get(i).getCapacity().toString());
                 cellCapacityLabel.prefHeight(20);
                 cellCapacityLabel.setStyle("-fx-font: 16 arial;");
 
-                Material tempMaterial = StaticData.getMaterialHashMap().get(tempCellArrayList.get(i).getMaterialId());
+                Material tempMaterial = materialDao.get(tempCellList.get(i).getMaterialId());
                 if (tempMaterial != null) {
                     cellMaterialLabel.setText(tempMaterial.getName());
                     cellManufacturerLabel.setText(tempMaterial.getManufacturer());
                     cellCapacityLabel.setText(
-                            tempCellArrayList.get(i).getOccupancy().toString()  + " " +
-                                    " / " + tempCellArrayList.get(i).getCapacity().toString() + " " +
-                                    StaticData.getUnitHashMap().get(tempMaterial.getUnitId()).getName()
+                            tempCellList.get(i).getOccupancy().toString()  + " " +
+                                    " / " + tempCellList.get(i).getCapacity().toString() + " " +
+                                    unitDao.get(tempMaterial.getUnitId()).getName()
                     );
                 }
 
@@ -211,7 +222,7 @@ public class StorageController {
                 AnchorPane.setTopAnchor(cellVBox, 0.0);
                 AnchorPane.setBottomAnchor(cellVBox, 0.0);
 
-                cellPane.setId(String.valueOf(tempCellArrayList.get(i).getCellId()));
+                cellPane.setId(String.valueOf(tempCellList.get(i).getCellId()));
                 cellPane.setStyle(cellStyle);
                 cellPane.setPrefSize(100, 100);
                 cellPane.setOnMouseClicked(e -> {
@@ -239,13 +250,13 @@ public class StorageController {
 
     private void enableStoreButton() {
         if(currentCellPane != null && materialTable.getSelectionModel().getSelectedItem() != null) {
-            Cell cell = StaticData.getCellHashMap().get(Integer.valueOf(currentCellPane.getId()));
+            Cell cell = cellDao.get(Integer.parseInt(currentCellPane.getId()));
             storeButton.setDisable(!checkMatching(cell, materialTable.getSelectionModel().getSelectedItem()));
         }
     }
 
-    public /*private*/ boolean checkMatching(Cell cell, ShipmentMaterial shipmentMaterial) {
-        Material material = StaticData.getMaterialHashMap().get(shipmentMaterial.getMaterialId());
+    /*public*/ private boolean checkMatching(Cell cell, ShipmentMaterial shipmentMaterial) {
+        Material material = materialDao.get(shipmentMaterial.getMaterialId());
 
         switch (shipmentMode) {
             default:

@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="640.0" prefWidth="1024.0" style="-fx-background-color: #527851;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.StorageController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="640.0" prefWidth="1024.0" style="-fx-background-color: #527851;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.StorageController">
     <children>
         <AnchorPane prefHeight="576.0" prefWidth="1024.0" style="-fx-background-color: #fafafa;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="64.0">
             <children>
@@ -83,10 +83,10 @@
                                     <TableView fx:id="materialTable" cache="true" layoutX="52.0" layoutY="40.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                       <columns>
                                         <TableColumn fx:id="materialTypeColumn" maxWidth="8000.0" text="Тип" />
-                                        <TableColumn fx:id="materialNameColumn" maxWidth="8000.0" text="Название" />
-                                          <TableColumn fx:id="materialManufacturerColumn" maxWidth="8000.0" text="Производитель" />
+                                        <TableColumn fx:id="materialNameColumn" maxWidth="8000.0" text="Назва" />
+                                          <TableColumn fx:id="materialManufacturerColumn" maxWidth="8000.0" text="Виробник" />
                                           <TableColumn fx:id="materialLoadedAmountColumn" maxWidth="3000.0" prefWidth="30.0" text="Укомплектовано" />
-                                          <TableColumn fx:id="materialAmountColumn" maxWidth="3000.0" prefWidth="30.0" text="Количество" />
+                                          <TableColumn fx:id="materialAmountColumn" maxWidth="3000.0" prefWidth="30.0" text="Кількість" />
                                       </columns>
                                        <columnResizePolicy>
                                           <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

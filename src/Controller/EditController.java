@@ -1,11 +1,8 @@
 package Controller;
 
-import Database.ShipmentDataAccessor;
-import Model.Cell;
-import Model.Material;
-import Model.ShipmentMaterial;
+import DAO.*;
+import Model.*;
 
-import Model.StaticData;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -47,6 +44,11 @@ public class EditController {
     private static Cell cell;
     private static ShipmentMaterial shipmentMaterial;
 
+    private final AreaDaoImpl areaDao = new AreaDaoImpl();
+    private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
+    private final SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
+    private final SupplyMaterialDaoImpl supplyMaterialDao = new SupplyMaterialDaoImpl();
+
     @FXML
     void initialize() {
         setData();
@@ -68,61 +70,50 @@ public class EditController {
     }
 
     private void setData() {
-        Material material = StaticData.getMaterialHashMap().get(shipmentMaterial.getMaterialId());
+        Material material = materialDao.get(shipmentMaterial.getMaterialId());
 
         switch (shipmentMode) {
-            case "supply":
-                titleLabel.setText("Погрузка на склад");
-                materialLabel.setText(material.getName() + " (" + material.getManufacturer() + ")  →  " + cell.getName() + " (" + StaticData.getAreaHashMap().get(cell.getAreaId()).getName() + ")");
+            case "supply" -> {
+                titleLabel.setText("Завантаження на склад");
+                materialLabel.setText(material.getName() + " (" + material.getManufacturer() + ")  →  " + cell.getName() + " (" + areaDao.get(cell.getAreaId()).getName() + ")");
                 leftLabel.setText(String.valueOf(shipmentMaterial.getAmount() - shipmentMaterial.getLoadedAmount()));
                 rightLabel.setText(cell.getOccupancy().toString() + " / " + cell.getCapacity().toString());
-
                 leftImageView.setImage(new Image(new File("images" + File.separator + "cart.png").toURI().toString()));
                 gifImageView.setImage(new Image(new File("images" + File.separator + "gif3.gif").toURI().toString()));
                 rightImageView.setImage(new Image(new File("images" + File.separator + "storage.png").toURI().toString()));
-                break;
-
-            case "sending":
-                titleLabel.setText("Выгрузка со склада");
-                materialLabel.setText(cell.getName() + " (" + StaticData.getAreaHashMap().get(cell.getAreaId()).getName() + ")  →  " + material.getName() + " (" + material.getManufacturer() + ")");
+            }
+            case "sending" -> {
+                titleLabel.setText("Вивантаження зі складу");
+                materialLabel.setText(cell.getName() + " (" + areaDao.get(cell.getAreaId()).getName() + ")  →  " + material.getName() + " (" + material.getManufacturer() + ")");
                 leftLabel.setText(cell.getOccupancy().toString());
                 rightLabel.setText(shipmentMaterial.getLoadedAmount().toString() + " / " + shipmentMaterial.getAmount().toString());
-
                 leftImageView.setImage(new Image(new File("images" + File.separator + "storage.png").toURI().toString()));
                 gifImageView.setImage(new Image(new File("images" + File.separator + "gif3.gif").toURI().toString()));
                 rightImageView.setImage(new Image(new File("images" + File.separator + "cart.png").toURI().toString()));
-                break;
+            }
         }
     }
 
     private void saveData(){
-        Material material = StaticData.getMaterialHashMap().get(shipmentMaterial.getMaterialId());
-        ShipmentDataAccessor shipmentDataAccessor = new ShipmentDataAccessor();
+        Material material = materialDao.get(shipmentMaterial.getMaterialId());
 
         switch (shipmentMode) {
-            case "supply":
+            case "supply" -> {
                 cell.setOccupancy(cell.getOccupancy() + Integer.parseInt(amountTextField.getText()));
                 material.setAmount(material.getAmount() + Integer.parseInt(amountTextField.getText()));
                 shipmentMaterial.setLoadedAmount(shipmentMaterial.getLoadedAmount() + Integer.parseInt(amountTextField.getText()));
 
-                StaticData.setCell(cell);
-                StaticData.setMaterial(material);
-                shipmentDataAccessor.updateSupplyMaterial(shipmentMaterial);
-
+                supplyMaterialDao.update(shipmentMaterial);
                 backButton.fire();
-                break;
-
-            case "sending":
+            }
+            case "sending" -> {
                 cell.setOccupancy(cell.getOccupancy() - Integer.parseInt(amountTextField.getText()));
                 material.setAmount(material.getAmount() - Integer.parseInt(amountTextField.getText()));
                 shipmentMaterial.setLoadedAmount(shipmentMaterial.getLoadedAmount() + Integer.parseInt(amountTextField.getText()));
 
-                StaticData.setCell(cell);
-                StaticData.setMaterial(material);
-                shipmentDataAccessor.updateSendingMaterial(shipmentMaterial);
-
+                sendingMaterialDao.update(shipmentMaterial);
                 backButton.fire();
-                break;
+            }
         }
     }
 
@@ -140,23 +131,22 @@ public class EditController {
         }
 
         switch (shipmentMode) {
-            case "supply":
+            case "supply" -> {
                 if (Integer.parseInt(amountTextField.getText()) > cell.getCapacity() - cell.getOccupancy()) {
                     return false;
                 }
                 if (Integer.parseInt(amountTextField.getText()) > shipmentMaterial.getAmount() - shipmentMaterial.getLoadedAmount()) {
                     return false;
                 }
-                break;
-
-            case "sending":
+            }
+            case "sending" -> {
                 if (Integer.parseInt(amountTextField.getText()) > cell.getOccupancy()) {
                     return false;
                 }
                 if (Integer.parseInt(amountTextField.getText()) > shipmentMaterial.getAmount() - shipmentMaterial.getLoadedAmount()) {
                     return false;
                 }
-                break;
+            }
         }
         return true;
     }
