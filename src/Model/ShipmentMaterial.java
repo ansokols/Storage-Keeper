@@ -21,19 +21,30 @@ public class ShipmentMaterial {
         return shipmentMaterialId;
     }
 
+    public void setShipmentMaterialId(Integer shipmentMaterialId) {
+        this.shipmentMaterialId = shipmentMaterialId;
+    }
+
     public Integer getAmount() {
         return amount;
     }
+
     public void setAmount(Integer amount) {
         this.amount = amount;
     }
 
-    public Integer getLoadedAmount() { return loadedAmount; }
-    public void setLoadedAmount(Integer loadedAmount) { this.loadedAmount = loadedAmount; }
+    public Integer getLoadedAmount() {
+        return loadedAmount;
+    }
+
+    public void setLoadedAmount(Integer loadedAmount) {
+        this.loadedAmount = loadedAmount;
+    }
 
     public Double getUnitPrice() {
         return unitPrice;
     }
+
     public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
     }
@@ -41,6 +52,7 @@ public class ShipmentMaterial {
     public Integer getShipmentId() {
         return shipmentId;
     }
+
     public void setShipmentId(Integer shipmentId) {
         this.shipmentId = shipmentId;
     }
@@ -48,6 +60,7 @@ public class ShipmentMaterial {
     public Integer getMaterialId() {
         return materialId;
     }
+
     public void setMaterialId(Integer materialId) {
         this.materialId = materialId;
     }

@@ -51,7 +51,7 @@ public class StorageController {
 
     private AnchorPane currentCellPane;
     private String shipmentMode = "supply";
-    private static final int numRows = 3;
+    private final int numRows = 3;
 
     private final AreaDaoImpl areaDataAccessor = new AreaDaoImpl();
     private final CellDaoImpl cellDao = new CellDaoImpl();

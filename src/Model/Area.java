@@ -13,9 +13,14 @@ public class Area {
         return areaId;
     }
 
+    public void setAreaId(Integer areaId) {
+        this.areaId = areaId;
+    }
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }

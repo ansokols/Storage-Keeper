@@ -6,14 +6,14 @@ public class Shipment {
     private Integer shipmentId;
     private Timestamp date;
     private String status;
-    private Integer supplierId;
+    private Integer shipperId;
     private Integer employeeId;
 
-    public Shipment(Integer supplyId, Timestamp date, String status, Integer supplierId, Integer employuuId) {
+    public Shipment(Integer supplyId, Timestamp date, String status, Integer shipperId, Integer employuuId) {
         this.shipmentId = supplyId;
         this.date = date;
         this.status = status;
-        this.supplierId = supplierId;
+        this.shipperId = shipperId;
         this.employeeId = employuuId;
     }
 
@@ -21,9 +21,14 @@ public class Shipment {
         return shipmentId;
     }
 
+    public void setShipmentId(Integer shipmentId) {
+        this.shipmentId = shipmentId;
+    }
+
     public Timestamp getDate() {
         return date;
     }
+
     public void setDate(Timestamp date) {
         this.date = date;
     }
@@ -31,20 +36,23 @@ public class Shipment {
     public String getStatus() {
         return status;
     }
+
     public void setStatus(String status) {
         this.status = status;
     }
 
-    public Integer getSupplierId() {
-        return supplierId;
+    public Integer getShipperId() {
+        return shipperId;
     }
-    public void setSupplierId(Integer supplierId) {
-        this.supplierId = supplierId;
+
+    public void setShipperId(Integer shipperId) {
+        this.shipperId = shipperId;
     }
 
     public Integer getEmployeeId() {
         return employeeId;
     }
+
     public void setEmployeeId(Integer employeeId) {
         this.employeeId = employeeId;
     }

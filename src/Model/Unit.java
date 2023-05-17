@@ -9,9 +9,18 @@ public class Unit {
         this.name = name;
     }
 
-    public Integer getUnitId() { return unitId; }
+    public Integer getUnitId() {
+        return unitId;
+    }
 
-    public String getName() { return name; }
+    public void setUnitId(Integer unitId) {
+        this.unitId = unitId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

@@ -19,9 +19,18 @@ public class Material {
         this.unitId = unitId;
     }
 
-    public Integer getMaterialId() { return materialId; }
+    public Integer getMaterialId() {
+        return materialId;
+    }
 
-    public String getName() { return name; }
+    public void setMaterialId(Integer materialId) {
+        this.materialId = materialId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -29,6 +38,7 @@ public class Material {
     public String getManufacturer() {
         return manufacturer;
     }
+
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
     }
@@ -36,6 +46,7 @@ public class Material {
     public Double getUnitPrice() {
         return unitPrice;
     }
+
     public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
     }
@@ -43,6 +54,7 @@ public class Material {
     public Integer getAmount() {
         return amount;
     }
+
     public void setAmount(Integer amount) {
         this.amount = amount;
     }
@@ -50,6 +62,7 @@ public class Material {
     public Integer getTypeId() {
         return typeId;
     }
+
     public void setTypeId(Integer typeId) {
         this.typeId = typeId;
     }
@@ -57,6 +70,7 @@ public class Material {
     public Integer getUnitId() {
         return unitId;
     }
+
     public void setUnitId(Integer unitId) {
         this.unitId = unitId;
     }

@@ -23,9 +23,14 @@ public class Cell {
         return cellId;
     }
 
+    public void setCellId(Integer cellId) {
+        this.cellId = cellId;
+    }
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -33,6 +38,7 @@ public class Cell {
     public Integer getCapacity() {
         return capacity;
     }
+
     public void setCapacity(Integer capacity) {
         this.capacity = capacity;
     }
@@ -40,6 +46,7 @@ public class Cell {
     public Integer getOccupancy() {
         return occupancy;
     }
+
     public void setOccupancy(Integer occupancy) {
         this.occupancy = occupancy;
     }
@@ -47,6 +54,7 @@ public class Cell {
     public Integer getAreaId() {
         return areaId;
     }
+
     public void setAreaId(Integer areaId) {
         this.areaId = areaId;
     }
@@ -54,6 +62,7 @@ public class Cell {
     public Integer getTypeId() {
         return typeId;
     }
+
     public void setTypeId(Integer typeId) {
         this.typeId = typeId;
     }
@@ -61,6 +70,7 @@ public class Cell {
     public Integer getMaterialId() {
         return materialId;
     }
+
     public void setMaterialId(Integer materialId) {
         this.materialId = materialId;
     }
