@@ -1,6 +1,6 @@
 package DAO;
 
-import Model.Area;
+import DTO.Area;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AreaDaoImpl extends ConnectionManager implements Dao<Area> {
+public class AreaDaoImpl extends ConnectionManager implements MainDao<Area> {
 
     @Override
     public Area get(int id) {
@@ -58,8 +58,30 @@ public class AreaDaoImpl extends ConnectionManager implements Dao<Area> {
 
     @Override
     public int save(Area area) {
+        Integer id = null;
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "INSERT INTO area (name) VALUES (?)")
+        ) {
+            statement.setString(1, area.getName());
 
-        return 0;
+            int affectedRows = statement.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating user failed, no rows affected");
+            }
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    id = generatedKeys.getInt(1);
+                }
+                else {
+                    throw new SQLException("Creating user failed, no ID obtained");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return id;
     }
 
     @Override

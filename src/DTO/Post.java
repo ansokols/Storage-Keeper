@@ -1,4 +1,4 @@
-package Model;
+package DTO;
 
 public class Post {
     private Integer postId;
@@ -23,5 +23,10 @@ public class Post {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString()  {
+        return getName();
     }
 }

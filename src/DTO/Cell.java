@@ -1,21 +1,17 @@
-package Model;
+package DTO;
 
 public class Cell {
     private Integer cellId;
     private String name;
-    private Integer capacity;
     private Integer occupancy;
     private Integer areaId;
-    private Integer typeId;
     private Integer materialId;
 
-    public Cell(Integer cellId, String name, Integer capacity, Integer occupancy, Integer areaId, Integer typeId, Integer materialId) {
+    public Cell(Integer cellId, String name, Integer occupancy, Integer areaId, Integer materialId) {
         this.cellId = cellId;
         this.name = name;
-        this.capacity = capacity;
         this.occupancy = occupancy;
         this.areaId = areaId;
-        this.typeId = typeId;
         this.materialId = materialId;
     }
 
@@ -35,14 +31,6 @@ public class Cell {
         this.name = name;
     }
 
-    public Integer getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
-    }
-
     public Integer getOccupancy() {
         return occupancy;
     }
@@ -57,14 +45,6 @@ public class Cell {
 
     public void setAreaId(Integer areaId) {
         this.areaId = areaId;
-    }
-
-    public Integer getTypeId() {
-        return typeId;
-    }
-
-    public void setTypeId(Integer typeId) {
-        this.typeId = typeId;
     }
 
     public Integer getMaterialId() {

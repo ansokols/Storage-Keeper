@@ -1,14 +1,15 @@
 package DAO;
 
-import Model.Material;
+import DTO.Material;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MaterialDaoImpl extends ConnectionManager implements Dao<Material>  {
+public class MaterialDaoImpl extends ConnectionManager implements MainDao<Material> {
 
     @Override
     public Material get(int id) {
@@ -68,17 +69,77 @@ public class MaterialDaoImpl extends ConnectionManager implements Dao<Material> 
 
     @Override
     public int save(Material material) {
+        Integer id = null;
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "INSERT INTO material (name, manufacturer, unit_price, amount, type_id, unit_id)" +
+                                "VALUES (?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)
+        ) {
+            statement.setString(1, material.getName());
+            statement.setString(2, material.getManufacturer());
+            statement.setDouble(3, material.getUnitPrice());
+            statement.setInt(4, material.getAmount());
+            statement.setInt(5, material.getTypeId());
+            statement.setInt(6, material.getUnitId());
 
-        return 0;
+            int affectedRows = statement.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating failed, no rows affected");
+            }
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    id = generatedKeys.getInt(1);
+                }
+                else {
+                    throw new SQLException("Creating failed, no ID obtained");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return id;
     }
 
     @Override
     public void update(Material material) {
-
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE material" +
+                                " SET name = ?" +
+                                ", manufacturer = ?" +
+                                ", unit_price = ?" +
+                                ", amount = ?" +
+                                ", type_id = ?" +
+                                ", unit_id = ?" +
+                                " WHERE material_id = ?"
+                )
+        ) {
+            statement.setString(1, material.getName());
+            statement.setString(2, material.getManufacturer());
+            statement.setDouble(3, material.getUnitPrice());
+            statement.setInt(4, material.getAmount());
+            statement.setInt(5, material.getTypeId());
+            statement.setInt(6, material.getUnitId());
+            statement.setInt(7,material.getMaterialId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void delete(Material material) {
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM material WHERE material_id = ?"
+                )
+        ) {
+            statement.setInt(1, material.getMaterialId());
 
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

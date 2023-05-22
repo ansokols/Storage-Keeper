@@ -1,4 +1,4 @@
-package Model;
+package DTO;
 
 public class Unit {
     private Integer unitId;
@@ -23,5 +23,10 @@ public class Unit {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public String toString()  {
+        return getName();
     }
 }

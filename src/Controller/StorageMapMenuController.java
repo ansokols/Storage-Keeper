@@ -1,8 +1,8 @@
 package Controller;
 
 import DAO.*;
-import Model.*;
-import Model.Cell;
+import DTO.*;
+import DTO.Cell;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -24,11 +24,27 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class StorageController {
+public class StorageMapMenuController {
+    @FXML
+    private Button backButton;
+    @FXML
+    private Button storageButton;
+
+    @FXML
+    private Button storageMapButton;
+    @FXML
+    private Button shipmentButton;
+    @FXML
+    private Button materialButton;
+    @FXML
+    private Button employeeButton;
+
+    @FXML
+    private Button supplyButton;
+    @FXML
+    private Button sendingButton;
     @FXML
     private Button storeButton;
-    @FXML
-    private Button switchButton;
 
     @FXML
     private VBox areasVBox;
@@ -53,8 +69,9 @@ public class StorageController {
     private String shipmentMode = "supply";
     private final int numRows = 3;
 
-    private final AreaDaoImpl areaDataAccessor = new AreaDaoImpl();
+    private final AreaDaoImpl areaDao = new AreaDaoImpl();
     private final CellDaoImpl cellDao = new CellDaoImpl();
+    private final CellTypeDaoImp cellTypeDao = new CellTypeDaoImp();
     private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
     private final SendingDaoImpl sendingDao = new SendingDaoImpl();
     private final SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
@@ -65,19 +82,50 @@ public class StorageController {
 
     @FXML
     void initialize() {
-        switchButton.setText("Постачання");
-        shipmentComboBox.setItems(FXCollections.observableArrayList(supplyDao.getAll()));
         setAreas();
 
+        materialTable.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> enableStoreButton());
+
+        backButton.setOnAction(event -> Main.newWindow("/View/Authorization.fxml"));
+        storageButton.setOnAction(event -> Main.newWindow("/View/StorageMenu.fxml"));
+
+        storageMapButton.setOnAction(event -> Main.newWindow("/View/StorageMapMenu.fxml"));
+        shipmentButton.setOnAction(event -> Main.newWindow("/View/SupplyMenu.fxml"));
+        materialButton.setOnAction(event -> Main.newWindow("/View/MaterialMenu.fxml"));
+        employeeButton.setOnAction(event -> Main.newWindow("/View/EmployeeMenu.fxml"));
+
+        supplyButton.setOnAction(event -> {
+            supplyButton.setDisable(true);
+            supplyButton.setDefaultButton(true);
+            sendingButton.setDisable(false);
+            sendingButton.setDefaultButton(false);
+            storeButton.setDisable(true);
+
+            shipmentMode = "supply";
+            storeButton.setText("\uD83D\uDCE5");
+            shipmentComboBox.setItems(FXCollections.observableArrayList(supplyDao.getAll()));
+        });
+
+        sendingButton.setOnAction(event -> {
+            supplyButton.setDisable(false);
+            supplyButton.setDefaultButton(false);
+            sendingButton.setDisable(true);
+            sendingButton.setDefaultButton(true);
+            storeButton.setDisable(true);
+
+            shipmentMode = "sending";
+            storeButton.setText("\uD83D\uDCE4");
+            shipmentComboBox.setItems(FXCollections.observableArrayList(sendingDao.getAll()));
+        });
 
         storeButton.setOnAction(event -> {
             Cell cell = cellDao.get(Integer.parseInt(currentCellPane.getId()));
-            EditController.initializeData(shipmentMode, cell, materialTable.getSelectionModel().getSelectedItem());
+            StorageMapEditController.initializeData(shipmentMode, cell, materialTable.getSelectionModel().getSelectedItem());
 
             Stage stage = new Stage();
             Parent root = null;
             try {
-                root = FXMLLoader.load(getClass().getResource("/View/edit.fxml"));
+                root = FXMLLoader.load(getClass().getResource("/View/StorageMapEdit.fxml"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -93,40 +141,16 @@ public class StorageController {
             stage.show();
         });
 
-        switchButton.setOnAction(event -> {
-            storeButton.setDisable(true);
-
-            switch (shipmentMode) {
-                case "supply":
-                    shipmentMode = "sending";
-                    switchButton.setText("Відправки");
-                    storeButton.setText("\uD83D\uDCE4");
-                    shipmentComboBox.setItems(FXCollections.observableArrayList(sendingDao.getAll()));
-                    break;
-
-                case "sending":
-                    shipmentMode = "supply";
-                    switchButton.setText("Постачання");
-                    storeButton.setText("\uD83D\uDCE5");
-                    shipmentComboBox.setItems(FXCollections.observableArrayList(supplyDao.getAll()));
-                    break;
-            }
-        });
-
-
         shipmentComboBox.setOnAction(event -> {
             storeButton.setDisable(true);
             List<ShipmentMaterial> tempMats = null;
 
             if (shipmentComboBox.getSelectionModel().getSelectedItem() != null) {
                 switch (shipmentMode) {
-                    case "supply":
-                        tempMats = supplyMaterialDao.getAll(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
-                        break;
-
-                    case "sending":
-                        tempMats = sendingMaterialDao.getAll(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
-                        break;
+                    case "supply" ->
+                            tempMats = supplyMaterialDao.getAllByShipment(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
+                    case "sending" ->
+                            tempMats = sendingMaterialDao.getAllByShipment(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
                 }
 
                 //TODO Переделать
@@ -150,9 +174,6 @@ public class StorageController {
                 materialTable.getItems().clear();
             }
         });
-
-
-        materialTable.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> enableStoreButton());
     }
 
     private void setAreas() {
@@ -160,16 +181,24 @@ public class StorageController {
         currentCellPane = null;
         storeButton.setDisable(true);
 
-        String cellStyle =
-                "-fx-background-radius: 10; -fx-background-color: grey;" +
-                        "-fx-border-radius: 2; -fx-border-width: 5; -fx-border-color: #fafafa;" +
+        String emptyCellStyle =
+                "-fx-background-radius: 10; -fx-background-color: #e6e6e6;" +
+                        "-fx-border-radius: 2; -fx-border-width: 5; -fx-border-color: #f4f4f4;" +
                         "-fx-cursor: HAND";
-        String pressedCellStyle =
-                "-fx-background-radius: 10; -fx-background-color: #aaaaaa;" +
+        String emptyPressedCellStyle =
+                "-fx-background-radius: 10; -fx-background-color: #e6e6e6;" +
+                        "-fx-border-radius: 2; -fx-border-width: 5; -fx-border-color: #8ff7ab;" +
+                        "-fx-cursor: HAND";
+        String occupiedCellStyle =
+                "-fx-background-radius: 10; -fx-background-color: grey;" +
+                        "-fx-border-radius: 2; -fx-border-width: 5; -fx-border-color: #f4f4f4;" +
+                        "-fx-cursor: HAND";
+        String occupiedPressedCellStyle =
+                "-fx-background-radius: 10; -fx-background-color: grey;" +
                         "-fx-border-radius: 2; -fx-border-width: 5; -fx-border-color: #8ff7ab;" +
                         "-fx-cursor: HAND";
 
-        for (Area area : areaDataAccessor.getAll()) {
+        for (Area area : areaDao.getAll()) {
             GridPane gridPane = new GridPane();
             gridPane.setHgap(5);
             gridPane.setVgap(5);
@@ -188,48 +217,81 @@ public class StorageController {
                 cellNameLabel.prefHeight(20);
                 cellNameLabel.setStyle("-fx-font: 16 arial;");
 
-                Label cellTypeLabel = new Label(typeDao.get(tempCellList.get(i).getTypeId()).getName());
+                Label cellTypeLabel = new Label();
                 cellTypeLabel.prefHeight(20);
                 cellTypeLabel.setStyle("-fx-font: 16 arial;");
 
-                Label cellMaterialLabel = new Label("");
+                Label cellMaterialLabel = new Label();
                 cellMaterialLabel.prefHeight(20);
                 cellMaterialLabel.setStyle("-fx-font: 16 arial;");
 
-                Label cellManufacturerLabel = new Label("");
+                Label cellManufacturerLabel = new Label();
                 cellManufacturerLabel.prefHeight(20);
                 cellManufacturerLabel.setStyle("-fx-font: 16 arial;");
 
-                Label cellCapacityLabel = new Label(tempCellList.get(i).getCapacity().toString());
+                Label cellCapacityLabel = new Label();
                 cellCapacityLabel.prefHeight(20);
                 cellCapacityLabel.setStyle("-fx-font: 16 arial;");
 
+                VBox cellVBox = new VBox();
+                cellVBox.setPadding(new Insets(0, 0, 0, 10));
+                cellVBox.getChildren().add(cellNameLabel);
+
                 Material tempMaterial = materialDao.get(tempCellList.get(i).getMaterialId());
+
                 if (tempMaterial != null) {
+                    cellTypeLabel.setText(typeDao.get(tempMaterial.getTypeId()).getName());
+                    cellVBox.getChildren().add(cellTypeLabel);
+
                     cellMaterialLabel.setText(tempMaterial.getName());
+                    cellVBox.getChildren().add(cellMaterialLabel);
+
                     cellManufacturerLabel.setText(tempMaterial.getManufacturer());
+                    cellVBox.getChildren().add(cellManufacturerLabel);
+
                     cellCapacityLabel.setText(
                             tempCellList.get(i).getOccupancy().toString()  + " " +
-                                    " / " + tempCellList.get(i).getCapacity().toString() + " " +
+                                    " / " + cellTypeDao.get(tempCellList.get(i).getCellId(), tempMaterial.getTypeId()).getCapacity() + " " +
                                     unitDao.get(tempMaterial.getUnitId()).getName()
                     );
-                }
+                    cellVBox.getChildren().add(cellCapacityLabel);
+                } else {
+                    List<CellType> cellTypeList = cellTypeDao.getAllByCell(tempCellList.get(i).getCellId());
 
-                VBox cellVBox = new VBox(cellNameLabel, cellTypeLabel, cellMaterialLabel, cellManufacturerLabel, cellCapacityLabel);
-                cellVBox.setPadding(new Insets(0, 0, 0, 10));
+                    for (CellType cellType : cellTypeList) {
+                        String cellTypeInfo = typeDao.get(cellType.getTypeId()).getName() +
+                                "   [" + cellType.getCapacity() + "]";
+                        Label newLabel = new Label(cellTypeInfo);
+                        newLabel.prefHeight(20);
+                        newLabel.setStyle("-fx-font: 16 arial;");
+                        cellVBox.getChildren().add(newLabel);
+                    }
+                }
 
                 AnchorPane cellPane = new AnchorPane(cellVBox);
                 AnchorPane.setTopAnchor(cellVBox, 0.0);
                 AnchorPane.setBottomAnchor(cellVBox, 0.0);
 
                 cellPane.setId(String.valueOf(tempCellList.get(i).getCellId()));
-                cellPane.setStyle(cellStyle);
+                if (tempMaterial != null) {
+                    cellPane.setStyle(occupiedCellStyle);
+                } else {
+                    cellPane.setStyle(emptyCellStyle);
+                }
                 cellPane.setPrefSize(100, 100);
                 cellPane.setOnMouseClicked(e -> {
                     if (currentCellPane != null) {
-                        currentCellPane.setStyle(cellStyle);
+                        if (cellDao.get(Integer.parseInt(currentCellPane.getId())).getMaterialId() != 0) {
+                            currentCellPane.setStyle(occupiedCellStyle);
+                        } else {
+                            currentCellPane.setStyle(emptyCellStyle);
+                        }
                     }
-                    cellPane.setStyle(pressedCellStyle);
+                    if (cellDao.get(Integer.parseInt(cellPane.getId())).getMaterialId() != 0) {
+                        cellPane.setStyle(occupiedPressedCellStyle);
+                    } else {
+                        cellPane.setStyle(emptyPressedCellStyle);
+                    }
                     currentCellPane = cellPane;
                     enableStoreButton();
                 });
@@ -266,18 +328,25 @@ public class StorageController {
                 if (shipmentMaterial.getLoadedAmount() >= shipmentMaterial.getAmount()) {
                     return false;
                 }
-                if (cell.getCapacity() - cell.getOccupancy() <= 0) {
-                    return false;
-                }
-                if (!cell.getTypeId().equals(material.getTypeId())) {
-                    return false;
-                }
+
                 if (cell.getMaterialId() != 0) {
                     if (!cell.getMaterialId().equals(material.getMaterialId())) {
                         return false;
                     }
+                    if (cellTypeDao.get(cell.getCellId(), material.getTypeId()).getCapacity() - cell.getOccupancy() <= 0) {
+                        return false;
+                    }
                 }
-                return true;
+
+                boolean result = false;
+                List<CellType> cellTypeList = cellTypeDao.getAllByCell(cell.getCellId());
+                for (CellType cellType : cellTypeList) {
+                    if (cellType.getTypeId().equals(material.getTypeId())) {
+                        result = true;
+                    }
+                }
+
+                return result;
 
             case "sending":
                 if (shipmentMaterial.getLoadedAmount() >= shipmentMaterial.getAmount()) {

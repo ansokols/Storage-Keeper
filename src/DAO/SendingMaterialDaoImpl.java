@@ -1,10 +1,11 @@
 package DAO;
 
-import Model.ShipmentMaterial;
+import DTO.ShipmentMaterial;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class SendingMaterialDaoImpl extends ConnectionManager implements Shipmen
     }
 
     @Override
-    public List<ShipmentMaterial> getAll(int shipmentId) {
+    public List<ShipmentMaterial> getAllByShipment(int sendingId) {
         List<ShipmentMaterial> shipmentMaterialList = new ArrayList<>();
 
         try (
@@ -25,7 +26,7 @@ public class SendingMaterialDaoImpl extends ConnectionManager implements Shipmen
                                 " WHERE sending_material.sending_id = ?"
                 )
         ){
-            statement.setString(1, String.valueOf(shipmentId));
+            statement.setString(1, String.valueOf(sendingId));
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 shipmentMaterialList.add(new ShipmentMaterial(
@@ -45,24 +46,57 @@ public class SendingMaterialDaoImpl extends ConnectionManager implements Shipmen
     }
 
     @Override
-    public int save(ShipmentMaterial shipmentMaterial) {
+    public int save(ShipmentMaterial sendingMaterial) {
+        Integer id = null;
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "INSERT INTO sending_material (loaded_amount, amount, unit_price, sending_id, material_id)" +
+                                "VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)
+        ) {
+            statement.setInt(1, sendingMaterial.getLoadedAmount());
+            statement.setInt(2, sendingMaterial.getAmount());
+            statement.setDouble(3, sendingMaterial.getUnitPrice());
+            statement.setInt(4, sendingMaterial.getShipmentId());
+            statement.setInt(5, sendingMaterial.getMaterialId());
 
-        return 0;
+            int affectedRows = statement.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating failed, no rows affected");
+            }
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    id = generatedKeys.getInt(1);
+                }
+                else {
+                    throw new SQLException("Creating failed, no ID obtained");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return id;
     }
 
     @Override
-    public void update(ShipmentMaterial shipmentMaterial) {
+    public void update(ShipmentMaterial sendingMaterial) {
         try (
                 PreparedStatement statement = connection.prepareStatement(
-                        "UPDATE `sending_material`" +
-                                " SET `amount` = '" + shipmentMaterial.getAmount() +
-                                "', `loaded_amount` = '" + shipmentMaterial.getLoadedAmount() +
-                                "', `unit_price` = '" + shipmentMaterial.getUnitPrice() +
-                                "', `sending_id` = '" + shipmentMaterial.getShipmentId() +
-                                "', `material_id` = '" + shipmentMaterial.getMaterialId() +
-                                "' WHERE sending_material_id = " + shipmentMaterial.getShipmentMaterialId()
+                        "UPDATE sending_material" +
+                                " SET amount = ?" +
+                                ", loaded_amount = ?" +
+                                ", unit_price = ?" +
+                                ", sending_id = ?" +
+                                ", material_id = ?" +
+                                " WHERE sending_material_id = ?"
                 )
         ) {
+            statement.setInt(1, sendingMaterial.getAmount());
+            statement.setInt(2, sendingMaterial.getLoadedAmount());
+            statement.setDouble(3, sendingMaterial.getUnitPrice());
+            statement.setInt(4, sendingMaterial.getShipmentId());
+            statement.setInt(5, sendingMaterial.getMaterialId());
+            statement.setInt(6, sendingMaterial.getShipmentMaterialId());
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -70,7 +104,17 @@ public class SendingMaterialDaoImpl extends ConnectionManager implements Shipmen
     }
 
     @Override
-    public void delete(ShipmentMaterial shipmentMaterial) {
+    public void delete(ShipmentMaterial sendingMaterial) {
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM sending_material WHERE sending_material_id = ?"
+                )
+        ) {
+            statement.setInt(1, sendingMaterial.getShipmentMaterialId());
 
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

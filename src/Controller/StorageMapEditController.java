@@ -1,7 +1,7 @@
 package Controller;
 
 import DAO.*;
-import Model.*;
+import DTO.*;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -15,7 +15,7 @@ import javafx.util.converter.IntegerStringConverter;
 import java.io.File;
 import java.util.function.UnaryOperator;
 
-public class EditController {
+public class StorageMapEditController {
     @FXML
     private Button backButton;
     @FXML
@@ -42,15 +42,21 @@ public class EditController {
 
     private static String shipmentMode;
     private static Cell cell;
+    private static CellType cellType;
+    private static Material material;
     private static ShipmentMaterial shipmentMaterial;
 
     private final AreaDaoImpl areaDao = new AreaDaoImpl();
+    private final CellDaoImpl cellDao = new CellDaoImpl();
+    private final CellTypeDaoImp cellTypeDao = new CellTypeDaoImp();
     private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
     private final SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
     private final SupplyMaterialDaoImpl supplyMaterialDao = new SupplyMaterialDaoImpl();
 
     @FXML
     void initialize() {
+        material = materialDao.get(shipmentMaterial.getMaterialId());
+        cellType = cellTypeDao.get(cell.getCellId(), material.getTypeId());
         setData();
         amountTextField.setTextFormatter(new TextFormatter<>(new IntegerStringConverter(), null, integerFilter));
 
@@ -64,20 +70,18 @@ public class EditController {
     }
 
     public static void initializeData(String shipmentMode, Cell cell, ShipmentMaterial shipmentMaterial) {
-        EditController.shipmentMode = shipmentMode;
-        EditController.cell = cell;
-        EditController.shipmentMaterial = shipmentMaterial;
+        StorageMapEditController.shipmentMode = shipmentMode;
+        StorageMapEditController.cell = cell;
+        StorageMapEditController.shipmentMaterial = shipmentMaterial;
     }
 
     private void setData() {
-        Material material = materialDao.get(shipmentMaterial.getMaterialId());
-
         switch (shipmentMode) {
             case "supply" -> {
                 titleLabel.setText("Завантаження на склад");
                 materialLabel.setText(material.getName() + " (" + material.getManufacturer() + ")  →  " + cell.getName() + " (" + areaDao.get(cell.getAreaId()).getName() + ")");
                 leftLabel.setText(String.valueOf(shipmentMaterial.getAmount() - shipmentMaterial.getLoadedAmount()));
-                rightLabel.setText(cell.getOccupancy().toString() + " / " + cell.getCapacity().toString());
+                rightLabel.setText(cell.getOccupancy().toString() + " / " + cellTypeDao.get(cell.getCellId(), cellType.getTypeId()).getCapacity().toString());
                 leftImageView.setImage(new Image(new File("images" + File.separator + "cart.png").toURI().toString()));
                 gifImageView.setImage(new Image(new File("images" + File.separator + "gif3.gif").toURI().toString()));
                 rightImageView.setImage(new Image(new File("images" + File.separator + "storage.png").toURI().toString()));
@@ -95,23 +99,32 @@ public class EditController {
     }
 
     private void saveData(){
+        //TODO Изменение статуса
         Material material = materialDao.get(shipmentMaterial.getMaterialId());
 
         switch (shipmentMode) {
             case "supply" -> {
                 cell.setOccupancy(cell.getOccupancy() + Integer.parseInt(amountTextField.getText()));
+                cell.setMaterialId(material.getMaterialId());
                 material.setAmount(material.getAmount() + Integer.parseInt(amountTextField.getText()));
                 shipmentMaterial.setLoadedAmount(shipmentMaterial.getLoadedAmount() + Integer.parseInt(amountTextField.getText()));
 
                 supplyMaterialDao.update(shipmentMaterial);
+                materialDao.update(material);
+                cellDao.update(cell);
                 backButton.fire();
             }
             case "sending" -> {
                 cell.setOccupancy(cell.getOccupancy() - Integer.parseInt(amountTextField.getText()));
+                if (cell.getOccupancy() == 0) {
+                    cell.setMaterialId(0);
+                }
                 material.setAmount(material.getAmount() - Integer.parseInt(amountTextField.getText()));
                 shipmentMaterial.setLoadedAmount(shipmentMaterial.getLoadedAmount() + Integer.parseInt(amountTextField.getText()));
 
                 sendingMaterialDao.update(shipmentMaterial);
+                materialDao.update(material);
+                cellDao.update(cell);
                 backButton.fire();
             }
         }
@@ -132,7 +145,7 @@ public class EditController {
 
         switch (shipmentMode) {
             case "supply" -> {
-                if (Integer.parseInt(amountTextField.getText()) > cell.getCapacity() - cell.getOccupancy()) {
+                if (Integer.parseInt(amountTextField.getText()) > cellType.getCapacity() - cell.getOccupancy()) {
                     return false;
                 }
                 if (Integer.parseInt(amountTextField.getText()) > shipmentMaterial.getAmount() - shipmentMaterial.getLoadedAmount()) {

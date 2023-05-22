@@ -1,4 +1,4 @@
-package Model;
+package DTO;
 
 public class Shipper {
     private Integer shipperId;
@@ -53,5 +53,10 @@ public class Shipper {
 
     public void setContactPerson(String contactPerson) {
         this.contactPerson = contactPerson;
+    }
+
+    @Override
+    public String toString()  {
+        return getName();
     }
 }

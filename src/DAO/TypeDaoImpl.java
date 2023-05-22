@@ -1,15 +1,14 @@
 package DAO;
 
-import Model.Type;
+import DTO.Type;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TypeDaoImpl extends ConnectionManager implements Dao<Type> {
+public class TypeDaoImpl extends ConnectionManager implements MainDao<Type> {
 
     @Override
     public Type get(int id) {

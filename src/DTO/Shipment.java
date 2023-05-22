@@ -1,20 +1,22 @@
-package Model;
+package DTO;
 
 import java.sql.Timestamp;
 
 public class Shipment {
     private Integer shipmentId;
+    private String name;
     private Timestamp date;
     private String status;
     private Integer shipperId;
     private Integer employeeId;
 
-    public Shipment(Integer supplyId, Timestamp date, String status, Integer shipperId, Integer employuuId) {
-        this.shipmentId = supplyId;
+    public Shipment(Integer shipmentId, String name, Timestamp date, String status, Integer shipperId, Integer employeeId) {
+        this.shipmentId = shipmentId;
+        this.name = name;
         this.date = date;
         this.status = status;
         this.shipperId = shipperId;
-        this.employeeId = employuuId;
+        this.employeeId = employeeId;
     }
 
     public Integer getShipmentId() {
@@ -23,6 +25,14 @@ public class Shipment {
 
     public void setShipmentId(Integer shipmentId) {
         this.shipmentId = shipmentId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Timestamp getDate() {

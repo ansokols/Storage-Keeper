@@ -1,6 +1,6 @@
 package DAO;
 
-import Model.Shipper;
+import DTO.Shipper;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,10 +8,33 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SupplierDaoImpl extends ConnectionManager implements Dao<Shipper> {
+public class SupplierDaoImpl extends ConnectionManager implements MainDao<Shipper> {
     @Override
     public Shipper get(int id) {
-        return null;
+        Shipper supplier = null;
+
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "SELECT * FROM supplier" +
+                                " WHERE supplier.supplier_id = ?"
+                )
+        ){
+            statement.setString(1, String.valueOf(id));
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                supplier = new Shipper(
+                        resultSet.getInt("supplier_id"),
+                        resultSet.getString("name"),
+                        resultSet.getString("address"),
+                        resultSet.getString("phone_number"),
+                        resultSet.getString("contact_person")
+                );
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return supplier;
     }
 
     @Override
@@ -39,8 +62,34 @@ public class SupplierDaoImpl extends ConnectionManager implements Dao<Shipper> {
     }
 
     @Override
-    public int save(Shipper shipper) {
-        return 0;
+    public int save(Shipper supplier) {
+        Integer id = null;
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "INSERT INTO supplier (name, address, phone_number, contact_person) VALUES (?)")
+        ) {
+            statement.setString(1, String.valueOf(supplier.getName()));
+            statement.setString(2, String.valueOf(supplier.getAddress()));
+            statement.setString(3, String.valueOf(supplier.getPhoneNumber()));
+            statement.setString(4, String.valueOf(supplier.getContactPerson()));
+
+            int affectedRows = statement.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating user failed, no rows affected");
+            }
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    id = generatedKeys.getInt(1);
+                }
+                else {
+                    throw new SQLException("Creating user failed, no ID obtained");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return id;
     }
 
     @Override
