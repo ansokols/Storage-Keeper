@@ -3,7 +3,6 @@ package DAO;
 import java.util.List;
 
 public interface CellTypeDao<T> {
-
     T get(int cellId, int typeId);
 
     List<T> getAllByCell(int cellId);

@@ -5,6 +5,7 @@ import DTO.Shipper;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,7 +67,8 @@ public class SupplierDaoImpl extends ConnectionManager implements MainDao<Shippe
         Integer id = null;
         try (
                 PreparedStatement statement = connection.prepareStatement(
-                        "INSERT INTO supplier (name, address, phone_number, contact_person) VALUES (?)")
+                        "INSERT INTO supplier (name, address, phone_number, contact_person) VALUES (?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS)
         ) {
             statement.setString(1, String.valueOf(supplier.getName()));
             statement.setString(2, String.valueOf(supplier.getAddress()));
@@ -93,12 +95,40 @@ public class SupplierDaoImpl extends ConnectionManager implements MainDao<Shippe
     }
 
     @Override
-    public void update(Shipper shipper) {
-
+    public void update(Shipper supplier) {
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE supplier" +
+                                " SET name = ?" +
+                                ", address = ?" +
+                                ", phone_number = ?" +
+                                ", contact_person = ?" +
+                                " WHERE supplier_id = ?"
+                )
+        ) {
+            statement.setString(1, supplier.getName());
+            statement.setString(2, supplier.getAddress());
+            statement.setString(3, supplier.getPhoneNumber());
+            statement.setString(4, supplier.getContactPerson());
+            statement.setInt(5, supplier.getShipperId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public void delete(Shipper shipper) {
+    public void delete(Shipper supplier) {
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM supplier WHERE supplier_id = ?"
+                )
+        ) {
+            statement.setInt(1, supplier.getShipperId());
 
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

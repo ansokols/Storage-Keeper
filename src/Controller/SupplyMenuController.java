@@ -192,6 +192,8 @@ public class SupplyMenuController {
     }
 
     public void setSupplyTable() {
+        int selectedIndex = supplyTable.getSelectionModel().getSelectedIndex();
+
         supplyNameColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getName())
         );
@@ -209,10 +211,13 @@ public class SupplyMenuController {
         );
 
         supplyTable.setItems(FXCollections.observableArrayList(supplyDao.getAll()));
+        supplyTable.getSelectionModel().select(selectedIndex);
     }
 
     public void setMaterialTable() {
         if (supplyTable.getSelectionModel().getSelectedItem() != null) {
+            int selectedIndex = materialTable.getSelectionModel().getSelectedIndex();
+
             typeColumn.setCellValueFactory(cellData ->
                     new SimpleStringProperty(typeDao.get(materialDao.get(cellData.getValue().getMaterialId()).getTypeId()).getName())
             );
@@ -238,6 +243,7 @@ public class SupplyMenuController {
             materialTable.setItems(FXCollections.observableArrayList(
                     supplyMaterialDao.getAllByShipment(supplyTable.getSelectionModel().getSelectedItem().getShipmentId())
             ));
+            materialTable.getSelectionModel().select(selectedIndex);
         }
     }
 

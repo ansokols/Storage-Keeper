@@ -48,7 +48,7 @@ public class StorageMapEditController {
 
     private final AreaDaoImpl areaDao = new AreaDaoImpl();
     private final CellDaoImpl cellDao = new CellDaoImpl();
-    private final CellTypeDaoImp cellTypeDao = new CellTypeDaoImp();
+    private final CellTypeDaoImpl cellTypeDao = new CellTypeDaoImpl();
     private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
     private final SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
     private final SupplyMaterialDaoImpl supplyMaterialDao = new SupplyMaterialDaoImpl();

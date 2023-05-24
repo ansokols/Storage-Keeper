@@ -77,7 +77,8 @@ public class EmployeeDaoImpl extends ConnectionManager implements MainDao<Employ
         try (
                 PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO employee (name, email, phone_number, enrollment_date," +
-                                "dismissal_date, login, password, post_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)
+                                "dismissal_date, login, password, post_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS)
         ) {
             statement.setString(1, employee.getName());
             statement.setString(2, employee.getEmail());

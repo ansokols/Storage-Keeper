@@ -5,6 +5,7 @@ import DTO.Shipper;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +66,8 @@ public class ClientDaoImpl extends ConnectionManager implements MainDao<Shipper>
         Integer id = null;
         try (
                 PreparedStatement statement = connection.prepareStatement(
-                        "INSERT INTO client (name, address, phone_number, contact_person) VALUES (?)")
+                        "INSERT INTO client (name, address, phone_number, contact_person) VALUES (?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS)
         ) {
             statement.setString(1, client.getName());
             statement.setString(2, client.getAddress());
@@ -92,12 +94,40 @@ public class ClientDaoImpl extends ConnectionManager implements MainDao<Shipper>
     }
 
     @Override
-    public void update(Shipper shipper) {
-
+    public void update(Shipper client) {
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE client" +
+                                " SET name = ?" +
+                                ", address = ?" +
+                                ", phone_number = ?" +
+                                ", contact_person = ?" +
+                                " WHERE client_id = ?"
+                )
+        ) {
+            statement.setString(1, client.getName());
+            statement.setString(2, client.getAddress());
+            statement.setString(3, client.getPhoneNumber());
+            statement.setString(4, client.getContactPerson());
+            statement.setInt(5, client.getShipperId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public void delete(Shipper shipper) {
+    public void delete(Shipper client) {
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM client WHERE client_id = ?"
+                )
+        ) {
+            statement.setInt(1, client.getShipperId());
 
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

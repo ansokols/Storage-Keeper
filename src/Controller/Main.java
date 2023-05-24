@@ -16,13 +16,14 @@ public class Main extends Application {
 
     private static Stage primaryStage;
 
-    private static EmployeeMenuController employeeMenuController;
-    private static MaterialMenuController materialMenuController;
-    private static SupplyMenuController supplyMenuController;
-    private static SendingMenuController sendingMenuController;
-    private static ShipperMenuController shipperMenuController;
     private static StorageMapMenuController storageMapMenuController;
     private static StorageMenuController storageMenuController;
+    private static SupplyMenuController supplyMenuController;
+    private static SendingMenuController sendingMenuController;
+    private static SupplierMenuController supplierMenuController;
+    private static ClientMenuController clientMenuController;
+    private static MaterialMenuController materialMenuController;
+    private static EmployeeMenuController employeeMenuController;
 
 
     @Override
@@ -72,21 +73,20 @@ public class Main extends Application {
         launch(args);
     }
 
-
-    public static EmployeeMenuController getEmployeeMenuController() {
-        return employeeMenuController;
+    public static StorageMapMenuController getStorageMapMenuController() {
+        return storageMapMenuController;
     }
 
-    public static void setEmployeeMenuController(EmployeeMenuController employeeMenuController) {
-        Main.employeeMenuController = employeeMenuController;
+    public static void setStorageMapMenuController(StorageMapMenuController storageMapMenuController) {
+        Main.storageMapMenuController = storageMapMenuController;
     }
 
-    public static MaterialMenuController getMaterialMenuController() {
-        return materialMenuController;
+    public static StorageMenuController getStorageMenuController() {
+        return storageMenuController;
     }
 
-    public static void setMaterialMenuController(MaterialMenuController materialMenuController) {
-        Main.materialMenuController = materialMenuController;
+    public static void setStorageMenuController(StorageMenuController storageMenuController) {
+        Main.storageMenuController = storageMenuController;
     }
 
     public static SupplyMenuController getSupplyMenuController() {
@@ -105,27 +105,35 @@ public class Main extends Application {
         Main.sendingMenuController = sendingMenuController;
     }
 
-    public static ShipperMenuController getShipperMenuController() {
-        return shipperMenuController;
+    public static SupplierMenuController getSupplierMenuController() {
+        return supplierMenuController;
     }
 
-    public static void setShipperMenuController(ShipperMenuController shipperMenuController) {
-        Main.shipperMenuController = shipperMenuController;
+    public static void setSupplierMenuController(SupplierMenuController supplierMenuController) {
+        Main.supplierMenuController = supplierMenuController;
     }
 
-    public static StorageMapMenuController getStorageMapMenuController() {
-        return storageMapMenuController;
+    public static ClientMenuController getClientMenuController() {
+        return clientMenuController;
     }
 
-    public static void setStorageMapMenuController(StorageMapMenuController storageMapMenuController) {
-        Main.storageMapMenuController = storageMapMenuController;
+    public static void setClientMenuController(ClientMenuController clientMenuController) {
+        Main.clientMenuController = clientMenuController;
     }
 
-    public static StorageMenuController getStorageMenuController() {
-        return storageMenuController;
+    public static MaterialMenuController getMaterialMenuController() {
+        return materialMenuController;
     }
 
-    public static void setStorageMenuController(StorageMenuController storageMenuController) {
-        Main.storageMenuController = storageMenuController;
+    public static void setMaterialMenuController(MaterialMenuController materialMenuController) {
+        Main.materialMenuController = materialMenuController;
+    }
+
+    public static EmployeeMenuController getEmployeeMenuController() {
+        return employeeMenuController;
+    }
+
+    public static void setEmployeeMenuController(EmployeeMenuController employeeMenuController) {
+        Main.employeeMenuController = employeeMenuController;
     }
 }

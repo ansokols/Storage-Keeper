@@ -101,6 +101,8 @@ public class EmployeeMenuController {
     }
 
     public void setEmployeeTable() {
+        int selectedIndex = employeeTable.getSelectionModel().getSelectedIndex();
+
         nameColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getName())
         );
@@ -121,6 +123,7 @@ public class EmployeeMenuController {
         );
 
         employeeTable.setItems(FXCollections.observableArrayList(employeeDao.getAll()));
+        employeeTable.getSelectionModel().select(selectedIndex);
     }
 
     public void addEmployee(Employee employee) {

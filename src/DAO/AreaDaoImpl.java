@@ -5,6 +5,7 @@ import DTO.Area;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class AreaDaoImpl extends ConnectionManager implements MainDao<Area> {
         Integer id = null;
         try (
                 PreparedStatement statement = connection.prepareStatement(
-                        "INSERT INTO area (name) VALUES (?)")
+                        "INSERT INTO area (name) VALUES (?)", Statement.RETURN_GENERATED_KEYS)
         ) {
             statement.setString(1, area.getName());
 
@@ -86,11 +87,34 @@ public class AreaDaoImpl extends ConnectionManager implements MainDao<Area> {
 
     @Override
     public void update(Area area) {
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE area" +
+                                " SET name = ?" +
+                                " WHERE area_id = ?"
+                )
+        ) {
+            statement.setString(1, area.getName());
+            statement.setInt(2, area.getAreaId());
 
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void delete(Area area) {
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM area WHERE area_id = ?"
+                )
+        ) {
+            statement.setInt(1, area.getAreaId());
 
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

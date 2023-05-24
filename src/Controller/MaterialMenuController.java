@@ -103,6 +103,8 @@ public class MaterialMenuController {
     }
 
     public void setMaterialTable() {
+        int selectedIndex = materialTable.getSelectionModel().getSelectedIndex();
+
         typeColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(typeDao.get(cellData.getValue().getTypeId()).getName())
         );
@@ -123,6 +125,7 @@ public class MaterialMenuController {
         );
 
         materialTable.setItems(FXCollections.observableArrayList(materialDao.getAll()));
+        materialTable.getSelectionModel().select(selectedIndex);
     }
 
     public void addMaterial(Material material) {

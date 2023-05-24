@@ -192,6 +192,8 @@ public class SendingMenuController {
     }
 
     public void setSendingTable() {
+        int selectedIndex = sendingTable.getSelectionModel().getSelectedIndex();
+
         sendingNameColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().getName())
         );
@@ -209,10 +211,13 @@ public class SendingMenuController {
         );
 
         sendingTable.setItems(FXCollections.observableArrayList(sendingDao.getAll()));
+        sendingTable.getSelectionModel().select(selectedIndex);
     }
 
     public void setMaterialTable() {
         if (sendingTable.getSelectionModel().getSelectedItem() != null) {
+            int selectedIndex = materialTable.getSelectionModel().getSelectedIndex();
+
             typeColumn.setCellValueFactory(cellData ->
                     new SimpleStringProperty(typeDao.get(materialDao.get(cellData.getValue().getMaterialId()).getTypeId()).getName())
             );
@@ -238,6 +243,7 @@ public class SendingMenuController {
             materialTable.setItems(FXCollections.observableArrayList(
                     sendingMaterialDao.getAllByShipment(sendingTable.getSelectionModel().getSelectedItem().getShipmentId())
             ));
+            materialTable.getSelectionModel().select(selectedIndex);
         }
     }
 

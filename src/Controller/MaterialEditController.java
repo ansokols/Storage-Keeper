@@ -134,7 +134,7 @@ public class MaterialEditController {
 
     private boolean isTypeValid() {
         String errorMessage = "";
-        String input= priceField.getText().trim();
+        String input = priceField.getText().trim();
         String pattern = "[-+]?[0-9]*\\.?[0-9]+([eE][-+]?[0-9]+)?";
 
         if (!input.matches(pattern) || Double.parseDouble(priceField.getText().trim()) < 0) {

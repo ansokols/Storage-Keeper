@@ -1,14 +1,14 @@
 package DAO;
 
 import DTO.Cell;
+import DTO.CellType;
+import DTO.ShipmentMaterial;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CellDaoImpl extends ConnectionManager implements MainDao<Cell> {
+public class CellDaoImpl extends ConnectionManager implements CellDao<Cell> {
 
     @Override
     public Cell get(int id) {
@@ -39,12 +39,17 @@ public class CellDaoImpl extends ConnectionManager implements MainDao<Cell> {
     }
 
     @Override
-    public List<Cell> getAll() {
+    public List<Cell> getAllByArea(int areaId) {
         List<Cell> cellList = new ArrayList<>();
 
         try (
-                PreparedStatement statement = connection.prepareStatement("SELECT * FROM cell")
+                PreparedStatement statement = connection.prepareStatement(
+                        "SELECT cell.* FROM area" +
+                                " JOIN cell ON cell.area_id = area.area_id" +
+                                " WHERE cell.area_id = ?"
+                )
         ){
+            statement.setString(1, String.valueOf(areaId));
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 cellList.add(new Cell(
@@ -67,12 +72,17 @@ public class CellDaoImpl extends ConnectionManager implements MainDao<Cell> {
         Integer id = null;
         try (
                 PreparedStatement statement = connection.prepareStatement(
-                        "INSERT INTO cell (name, occupancy, area_id, material_id) VALUES (?)")
+                        "INSERT INTO cell (name, occupancy, area_id, material_id) VALUES (?, ?, ?, ?)",
+                        Statement.RETURN_GENERATED_KEYS)
         ) {
             statement.setString(1, cell.getName());
             statement.setInt(2, cell.getOccupancy());
             statement.setInt(3, cell.getAreaId());
-            statement.setInt(4, cell.getMaterialId());
+            if (cell.getMaterialId() == null) {
+                statement.setNull(4, Types.INTEGER);
+            } else {
+                statement.setInt(4, cell.getMaterialId());
+            }
 
             int affectedRows = statement.executeUpdate();
             if (affectedRows == 0) {
@@ -108,7 +118,11 @@ public class CellDaoImpl extends ConnectionManager implements MainDao<Cell> {
             statement.setString(1, cell.getName());
             statement.setInt(2, cell.getOccupancy());
             statement.setInt(3, cell.getAreaId());
-            statement.setInt(4, cell.getMaterialId());
+            if (cell.getMaterialId() == null) {
+                statement.setNull(4, Types.INTEGER);
+            } else {
+                statement.setInt(4, cell.getMaterialId());
+            }
             statement.setInt(5, cell.getCellId());
 
             statement.executeUpdate();
@@ -119,7 +133,22 @@ public class CellDaoImpl extends ConnectionManager implements MainDao<Cell> {
 
     @Override
     public void delete(Cell cell) {
+        try (
+                PreparedStatement statement1 = connection.prepareStatement(
+                        "DELETE FROM cell WHERE cell_id = ?"
+                );
+                PreparedStatement statement2 = connection.prepareStatement(
+                        "DELETE FROM cell_type WHERE cell_id = ?"
+                )
+        ) {
+            statement1.setInt(1, cell.getCellId());
+            statement2.setInt(1, cell.getCellId());
 
+            statement1.executeUpdate();
+            statement2.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
 

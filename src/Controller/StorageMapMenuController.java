@@ -71,7 +71,7 @@ public class StorageMapMenuController {
 
     private final AreaDaoImpl areaDao = new AreaDaoImpl();
     private final CellDaoImpl cellDao = new CellDaoImpl();
-    private final CellTypeDaoImp cellTypeDao = new CellTypeDaoImp();
+    private final CellTypeDaoImpl cellTypeDao = new CellTypeDaoImpl();
     private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
     private final SendingDaoImpl sendingDao = new SendingDaoImpl();
     private final SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
@@ -153,7 +153,6 @@ public class StorageMapMenuController {
                             tempMats = sendingMaterialDao.getAllByShipment(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
                 }
 
-                //TODO Переделать
                 materialTypeColumn.setCellValueFactory(cellData ->
                         new SimpleStringProperty(typeDao.get(materialDao.get(cellData.getValue().getMaterialId()).getTypeId()).getName())
                 );
@@ -204,11 +203,7 @@ public class StorageMapMenuController {
             gridPane.setVgap(5);
             gridPane.setPadding(new Insets(0, 10, 10, 10));
 
-            int areaId = area.getAreaId();
-            //TODO Переделать
-            List<Cell> tempCellList = cellDao.getAll().stream().filter(cell ->
-                    cell.getAreaId().equals(areaId)).collect(Collectors.toList());
-
+            List<Cell> tempCellList = cellDao.getAllByArea(area.getAreaId());
             int j = 0;
             for (int i = 0; i < tempCellList.size(); i++) {
                 if (i % numRows == 0) j++;
@@ -303,7 +298,7 @@ public class StorageMapMenuController {
             groupLabel.setPadding(new Insets(5, 10, 5, 10));
             groupLabel.setStyle("-fx-font: 20 arial;");
             AnchorPane areaPane = new AnchorPane(gridPane);
-            areaPane.setId(String.valueOf(areaId));
+            areaPane.setId(String.valueOf(area.getAreaId()));
             VBox vBox = new VBox(new AnchorPane(groupLabel), areaPane);
             vBox.setStyle("-fx-border-width: 2; -fx-border-radius: 10; -fx-border-color: grey;");
             areasVBox.getChildren().add(new AnchorPane(vBox));
