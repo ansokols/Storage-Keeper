@@ -42,12 +42,13 @@ public class SupplyMaterialEditController {
     @FXML
     private TableColumn<Material, Double> priceColumn;
 
+
     private static Shipment supply;
     private static ShipmentMaterial supplyMaterial;
-    private SupplyMaterialDaoImpl supplyMaterialDao = new SupplyMaterialDaoImpl();
-    private MaterialDaoImpl materialDao = new MaterialDaoImpl();
-    private TypeDaoImpl typeDao = new TypeDaoImpl();
-    private UnitDaoImpl unitDao = new UnitDaoImpl();
+    private final SupplyMaterialDaoImpl supplyMaterialDao = new SupplyMaterialDaoImpl();
+    private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
+    private final TypeDaoImpl typeDao = new TypeDaoImpl();
+    private final UnitDaoImpl unitDao = new UnitDaoImpl();
 
 
     @FXML

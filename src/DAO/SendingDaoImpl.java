@@ -67,6 +67,7 @@ public class SendingDaoImpl extends ConnectionManager implements MainDao<Shipmen
     @Override
     public int save(Shipment sending) {
         Integer id = null;
+
         try (
                 PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO sending (name, date, status, client_id, employee_id)" +
@@ -94,6 +95,7 @@ public class SendingDaoImpl extends ConnectionManager implements MainDao<Shipmen
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return id;
     }
 

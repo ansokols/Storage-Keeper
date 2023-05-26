@@ -42,8 +42,8 @@ public class SupplyEditController {
 
 
     private static Shipment supply;
-    private SupplyDaoImpl supplyDao = new SupplyDaoImpl();
-    private SupplierDaoImpl supplierDao = new SupplierDaoImpl();
+    private final SupplyDaoImpl supplyDao = new SupplyDaoImpl();
+    private final SupplierDaoImpl supplierDao = new SupplierDaoImpl();
 
 
     @FXML

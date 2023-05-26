@@ -1,8 +1,6 @@
 package DAO;
 
 import DTO.Cell;
-import DTO.CellType;
-import DTO.ShipmentMaterial;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -70,6 +68,7 @@ public class CellDaoImpl extends ConnectionManager implements CellDao<Cell> {
     @Override
     public int save(Cell cell) {
         Integer id = null;
+
         try (
                 PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO cell (name, occupancy, area_id, material_id) VALUES (?, ?, ?, ?)",
@@ -100,6 +99,7 @@ public class CellDaoImpl extends ConnectionManager implements CellDao<Cell> {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return id;
     }
 

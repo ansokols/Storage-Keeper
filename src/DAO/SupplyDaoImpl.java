@@ -67,6 +67,7 @@ public class SupplyDaoImpl extends ConnectionManager implements MainDao<Shipment
     @Override
     public int save(Shipment supply) {
         Integer id = null;
+
         try (
                 PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO supply (name, date, status, supplier_id, employee_id)" +
@@ -94,6 +95,7 @@ public class SupplyDaoImpl extends ConnectionManager implements MainDao<Shipment
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return id;
     }
 

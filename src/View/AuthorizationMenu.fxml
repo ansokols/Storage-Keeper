@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="640.0" prefWidth="1024.0" style="-fx-background-color: #527851;" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller.AuthorizationMenuController">
+    <children>
+        <AnchorPane style="-fx-background-color: #fafafa;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="64.0">
+            <children>
+                <Button fx:id="enterButton" layoutX="734.0" layoutY="198.0" mnemonicParsing="false" prefHeight="90.0" prefWidth="90.0" text="Увійти" AnchorPane.rightAnchor="245.0">
+                    <font>
+                        <Font name="Segoe UI Semibold" size="16.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
+                <TextField fx:id="loginField" layoutX="288.0" layoutY="198.0" minWidth="50.0" prefHeight="37.0" prefWidth="379.0" promptText="Логін" AnchorPane.leftAnchor="245.0" AnchorPane.rightAnchor="357.0">
+                    <font>
+                        <Font name="Segoe UI Semibold" size="16.0" />
+                    </font></TextField>
+                <PasswordField fx:id="passwordField" layoutX="357.0" layoutY="254.0" minWidth="50.0" prefHeight="34.0" prefWidth="470.0" promptText="Пароль" AnchorPane.leftAnchor="245.0" AnchorPane.rightAnchor="357.0">
+                    <font>
+                        <Font name="Segoe UI Semibold" size="16.0" />
+                    </font></PasswordField>
+            </children></AnchorPane>
+        <Label alignment="CENTER" contentDisplay="CENTER" layoutY="-10.0" prefHeight="74.0" prefWidth="1024.0" text="Storage Keeper" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="-5.0">
+            <font>
+                <Font name="Impact" size="60.0" />
+            </font>
+            <textFill>
+                <RadialGradient centerX="0.5" centerY="0.5047619047619047" radius="0.5">
+                    <stops>
+                        <Stop>
+                            <color>
+                                <Color />
+                            </color>
+                        </Stop>
+                        <Stop offset="1.0">
+                            <color>
+                                <Color red="0.10526315867900848" green="0.10526315867900848" blue="0.10526315867900848" />
+                            </color>
+                        </Stop>
+                    </stops>
+                </RadialGradient>
+            </textFill>
+        </Label>
+    </children>
+</AnchorPane>

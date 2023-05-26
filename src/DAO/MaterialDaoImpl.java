@@ -70,6 +70,7 @@ public class MaterialDaoImpl extends ConnectionManager implements MainDao<Materi
     @Override
     public int save(Material material) {
         Integer id = null;
+
         try (
                 PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO material (name, manufacturer, unit_price, amount, type_id, unit_id)" +
@@ -98,6 +99,7 @@ public class MaterialDaoImpl extends ConnectionManager implements MainDao<Materi
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return id;
     }
 

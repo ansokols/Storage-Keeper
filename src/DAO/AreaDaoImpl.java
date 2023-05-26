@@ -60,6 +60,7 @@ public class AreaDaoImpl extends ConnectionManager implements MainDao<Area> {
     @Override
     public int save(Area area) {
         Integer id = null;
+
         try (
                 PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO area (name) VALUES (?)", Statement.RETURN_GENERATED_KEYS)
@@ -82,6 +83,7 @@ public class AreaDaoImpl extends ConnectionManager implements MainDao<Area> {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return id;
     }
 

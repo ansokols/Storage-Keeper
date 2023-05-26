@@ -22,7 +22,6 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class StorageMapMenuController {
     @FXML
@@ -65,10 +64,12 @@ public class StorageMapMenuController {
     @FXML
     private TableColumn<ShipmentMaterial, Integer> materialAmountColumn;
 
+
     private AnchorPane currentCellPane;
     private String shipmentMode = "supply";
     private final int numRows = 3;
 
+    private final PostDaoImpl postDao = new PostDaoImpl();
     private final AreaDaoImpl areaDao = new AreaDaoImpl();
     private final CellDaoImpl cellDao = new CellDaoImpl();
     private final CellTypeDaoImpl cellTypeDao = new CellTypeDaoImpl();
@@ -80,13 +81,15 @@ public class StorageMapMenuController {
     private final TypeDaoImpl typeDao = new TypeDaoImpl();
     private final UnitDaoImpl unitDao = new UnitDaoImpl();
 
+
     @FXML
     void initialize() {
         setAreas();
+        setAccess();
 
         materialTable.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> enableStoreButton());
 
-        backButton.setOnAction(event -> Main.newWindow("/View/Authorization.fxml"));
+        backButton.setOnAction(event -> Main.newWindow("/View/AuthorizationMenu.fxml"));
         storageButton.setOnAction(event -> Main.newWindow("/View/StorageMenu.fxml"));
 
         storageMapButton.setOnAction(event -> Main.newWindow("/View/StorageMapMenu.fxml"));
@@ -173,6 +176,18 @@ public class StorageMapMenuController {
                 materialTable.getItems().clear();
             }
         });
+    }
+
+    private void setAccess() {
+        Post post = postDao.get(Main.getEmployee().getPostId());
+
+        storageButton.setVisible(post.isStorageAccess());
+        storageMapButton.setVisible(post.isStorageMapAccess());
+        shipmentButton.setVisible(post.isShipmentAccess());
+        materialButton.setVisible(post.isMaterialAccess());
+        employeeButton.setVisible(post.isEmployeeAccess());
+
+        storeButton.setVisible(post.isStorageMapEdit());
     }
 
     private void setAreas() {
@@ -355,9 +370,5 @@ public class StorageMapMenuController {
                 }
                 return true;
         }
-    }
-
-    public void setShipmentMode(String shipmentMode) {
-        this.shipmentMode = shipmentMode;
     }
 }

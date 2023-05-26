@@ -1,5 +1,6 @@
 package Controller;
 
+import DTO.Employee;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,8 +16,8 @@ import java.io.IOException;
 public class Main extends Application {
 
     private static Stage primaryStage;
+    private static Employee employee;
 
-    private static StorageMapMenuController storageMapMenuController;
     private static StorageMenuController storageMenuController;
     private static SupplyMenuController supplyMenuController;
     private static SendingMenuController sendingMenuController;
@@ -24,6 +25,8 @@ public class Main extends Application {
     private static ClientMenuController clientMenuController;
     private static MaterialMenuController materialMenuController;
     private static EmployeeMenuController employeeMenuController;
+    private static PostMenuController postMenuController;
+    private static TypeMenuController typeMenuController;
 
 
     @Override
@@ -31,7 +34,8 @@ public class Main extends Application {
         Main.primaryStage = primaryStage;
         Parent root = null;
         try {
-            root = FXMLLoader.load(getClass().getResource("/View/StorageMapMenu.fxml"));
+            root = FXMLLoader.load(getClass().getResource("/View/AuthorizationMenu.fxml"));
+            //root = FXMLLoader.load(getClass().getResource("/View/StorageMapMenu.fxml"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -73,12 +77,12 @@ public class Main extends Application {
         launch(args);
     }
 
-    public static StorageMapMenuController getStorageMapMenuController() {
-        return storageMapMenuController;
+    public static Employee getEmployee() {
+        return employee;
     }
 
-    public static void setStorageMapMenuController(StorageMapMenuController storageMapMenuController) {
-        Main.storageMapMenuController = storageMapMenuController;
+    public static void setEmployee(Employee employee) {
+        Main.employee = employee;
     }
 
     public static StorageMenuController getStorageMenuController() {
@@ -135,5 +139,21 @@ public class Main extends Application {
 
     public static void setEmployeeMenuController(EmployeeMenuController employeeMenuController) {
         Main.employeeMenuController = employeeMenuController;
+    }
+
+    public static PostMenuController getPostMenuController() {
+        return postMenuController;
+    }
+
+    public static void setPostMenuController(PostMenuController postMenuController) {
+        Main.postMenuController = postMenuController;
+    }
+
+    public static TypeMenuController getTypeMenuController() {
+        return typeMenuController;
+    }
+
+    public static void setTypeMenuController(TypeMenuController typeMenuController) {
+        Main.typeMenuController = typeMenuController;
     }
 }

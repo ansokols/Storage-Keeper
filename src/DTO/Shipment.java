@@ -69,6 +69,6 @@ public class Shipment {
 
     @Override
     public String toString()  {
-        return getDate().toString();
+        return getName();
     }
 }

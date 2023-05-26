@@ -97,6 +97,7 @@ public class CellTypeDaoImpl extends ConnectionManager implements CellTypeDao<Ce
     @Override
     public int save(CellType cellType) {
         Integer id = null;
+
         try (
                 PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO cell_type (capacity, cell_id, type_id)" +
@@ -122,6 +123,7 @@ public class CellTypeDaoImpl extends ConnectionManager implements CellTypeDao<Ce
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return id;
     }
 

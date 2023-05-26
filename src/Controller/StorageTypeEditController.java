@@ -30,8 +30,8 @@ public class StorageTypeEditController {
 
     private static Cell cell;
     private static CellType cellType;
-    private TypeDaoImpl typeDao = new TypeDaoImpl();
-    private CellTypeDaoImpl cellTypeDao = new CellTypeDaoImpl();
+    private final TypeDaoImpl typeDao = new TypeDaoImpl();
+    private final CellTypeDaoImpl cellTypeDao = new CellTypeDaoImpl();
 
 
     @FXML

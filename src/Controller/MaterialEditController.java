@@ -36,9 +36,9 @@ public class MaterialEditController {
 
 
     private static Material material;
-    private MaterialDaoImpl materialDao = new MaterialDaoImpl();
-    private TypeDaoImpl typeDao = new TypeDaoImpl();
-    private UnitDaoImpl unitDao = new UnitDaoImpl();
+    private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
+    private final TypeDaoImpl typeDao = new TypeDaoImpl();
+    private final UnitDaoImpl unitDao = new UnitDaoImpl();
 
 
     @FXML

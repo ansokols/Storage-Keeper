@@ -29,7 +29,7 @@ public class SupplierEditController {
 
 
     private static Shipper supplier;
-    private SupplierDaoImpl supplierDao = new SupplierDaoImpl();
+    private final SupplierDaoImpl supplierDao = new SupplierDaoImpl();
 
 
     @FXML

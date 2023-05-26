@@ -42,8 +42,8 @@ public class SendingEditController {
 
 
     private static Shipment sending;
-    private SendingDaoImpl sendingDao = new SendingDaoImpl();
-    private ClientDaoImpl clientDao = new ClientDaoImpl();
+    private final SendingDaoImpl sendingDao = new SendingDaoImpl();
+    private final ClientDaoImpl clientDao = new ClientDaoImpl();
 
 
     @FXML
@@ -68,7 +68,7 @@ public class SendingEditController {
                             Timestamp.valueOf(datePicker.getValue().atStartOfDay()),
                             "created",
                             clientTable.getSelectionModel().getSelectedItem().getShipperId(),
-                            1   //TODO
+                            Main.getEmployee().getEmployeeId()
                     );
 
                     Integer id = sendingDao.save(newSending);
@@ -82,7 +82,7 @@ public class SendingEditController {
                             Timestamp.valueOf(datePicker.getValue().atStartOfDay()),
                             sending.getStatus(),
                             null,
-                            1   //TODO
+                            Main.getEmployee().getEmployeeId()
                     );
 
                     if (clientTable.getSelectionModel().getSelectedItem() == null) {

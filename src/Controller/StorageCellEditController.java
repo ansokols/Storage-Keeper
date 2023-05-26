@@ -28,7 +28,7 @@ public class StorageCellEditController {
 
     private static Area area;
     private static Cell cell;
-    private CellDaoImpl cellDao = new CellDaoImpl();
+    private final CellDaoImpl cellDao = new CellDaoImpl();
 
 
     @FXML

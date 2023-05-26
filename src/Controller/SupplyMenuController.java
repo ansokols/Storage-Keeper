@@ -1,6 +1,7 @@
 package Controller;
 
 import DAO.*;
+import DTO.Post;
 import DTO.Shipment;
 import DTO.ShipmentMaterial;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -73,19 +74,22 @@ public class SupplyMenuController {
     @FXML
     private TableColumn<ShipmentMaterial, Double> priceColumn;
 
-    private SupplyMaterialDaoImpl supplyMaterialDao = new SupplyMaterialDaoImpl();
-    private SupplyDaoImpl supplyDao = new SupplyDaoImpl();
-    private SupplierDaoImpl supplierDao = new SupplierDaoImpl();
-    private EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
-    private MaterialDaoImpl materialDao = new MaterialDaoImpl();
-    private TypeDaoImpl typeDao = new TypeDaoImpl();
-    private UnitDaoImpl unitDao = new UnitDaoImpl();
+
+    private final PostDaoImpl postDao = new PostDaoImpl();
+    private final SupplyMaterialDaoImpl supplyMaterialDao = new SupplyMaterialDaoImpl();
+    private final SupplyDaoImpl supplyDao = new SupplyDaoImpl();
+    private final SupplierDaoImpl supplierDao = new SupplierDaoImpl();
+    private final EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
+    private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
+    private final TypeDaoImpl typeDao = new TypeDaoImpl();
+    private final UnitDaoImpl unitDao = new UnitDaoImpl();
 
 
     @FXML
     void initialize() {
         Main.setSupplyMenuController(this);
         setSupplyTable();
+        setAccess();
 
         supplyTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -101,7 +105,7 @@ public class SupplyMenuController {
             }
         });
 
-        backButton.setOnAction(event -> Main.newWindow("/View/Authorization.fxml"));
+        backButton.setOnAction(event -> Main.newWindow("/View/AuthorizationMenu.fxml"));
         supplierButton.setOnAction(event -> Main.newWindow("/View/SupplierMenu.fxml"));
 
         storageMapButton.setOnAction(event -> Main.newWindow("/View/StorageMapMenu.fxml"));
@@ -189,6 +193,22 @@ public class SupplyMenuController {
                 }
             }
         });
+    }
+
+    private void setAccess() {
+        Post post = postDao.get(Main.getEmployee().getPostId());
+
+        supplierButton.setVisible(post.isShipperAccess());
+        storageMapButton.setVisible(post.isStorageMapAccess());
+        supplyButton.setVisible(post.isShipmentAccess());
+        sendingButton.setVisible(post.isShipmentAccess());
+        materialButton.setVisible(post.isMaterialAccess());
+        employeeButton.setVisible(post.isEmployeeAccess());
+
+        newSupplyButton.setVisible(post.isShipmentEdit());
+        newMaterialButton.setVisible(post.isShipmentEdit());
+        editButton.setVisible(post.isShipmentEdit());
+        deleteButton.setVisible(post.isShipmentEdit());
     }
 
     public void setSupplyTable() {

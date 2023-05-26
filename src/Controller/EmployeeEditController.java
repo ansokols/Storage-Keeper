@@ -41,8 +41,8 @@ public class EmployeeEditController {
 
 
     private static Employee employee;
-    private EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
-    private PostDaoImpl postDao = new PostDaoImpl();
+    private final EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
+    private final PostDaoImpl postDao = new PostDaoImpl();
 
 
     @FXML

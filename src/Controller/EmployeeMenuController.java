@@ -3,6 +3,7 @@ package Controller;
 import DAO.EmployeeDaoImpl;
 import DAO.PostDaoImpl;
 import DTO.Employee;
+import DTO.Post;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -18,6 +19,8 @@ import java.util.Optional;
 public class EmployeeMenuController {
     @FXML
     private Button backButton;
+    @FXML
+    private Button postButton;
 
     @FXML
     private Button storageMapButton;
@@ -50,14 +53,16 @@ public class EmployeeMenuController {
     @FXML
     private TableColumn<Employee, Timestamp> dissmissalDateColumn;
 
-    private EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
-    private PostDaoImpl postDao = new PostDaoImpl();
+
+    private final EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
+    private final PostDaoImpl postDao = new PostDaoImpl();
 
 
     @FXML
     void initialize() {
         Main.setEmployeeMenuController(this);
         setEmployeeTable();
+        setAccess();
 
         employeeTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -65,7 +70,8 @@ public class EmployeeMenuController {
                     deleteButton.setDisable(false);
                 });
 
-        backButton.setOnAction(event -> Main.newWindow("/View/Authorization.fxml"));
+        backButton.setOnAction(event -> Main.newWindow("/View/AuthorizationMenu.fxml"));
+        postButton.setOnAction(event -> Main.newWindow("/View/PostMenu.fxml"));
 
         storageMapButton.setOnAction(event -> Main.newWindow("/View/StorageMapMenu.fxml"));
         shipmentButton.setOnAction(event -> Main.newWindow("/View/SupplyMenu.fxml"));
@@ -98,6 +104,20 @@ public class EmployeeMenuController {
                 }
             }
         });
+    }
+
+    private void setAccess() {
+        Post post = postDao.get(Main.getEmployee().getPostId());
+
+        postButton.setVisible(post.isPostAccess());
+        storageMapButton.setVisible(post.isStorageMapAccess());
+        shipmentButton.setVisible(post.isShipmentAccess());
+        materialButton.setVisible(post.isMaterialAccess());
+        employeeButton.setVisible(post.isEmployeeAccess());
+
+        newEmployeeButton.setVisible(post.isEmployeeEdit());
+        editButton.setVisible(post.isEmployeeEdit());
+        deleteButton.setVisible(post.isEmployeeEdit());
     }
 
     public void setEmployeeTable() {

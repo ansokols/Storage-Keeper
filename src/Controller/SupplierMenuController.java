@@ -1,6 +1,8 @@
 package Controller;
 
+import DAO.PostDaoImpl;
 import DAO.SupplierDaoImpl;
+import DTO.Post;
 import DTO.Shipper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -44,13 +46,15 @@ public class SupplierMenuController {
     private TableColumn<Shipper, String> contactPersonColumn;
 
 
-    private SupplierDaoImpl supplierDao = new SupplierDaoImpl();
+    private final PostDaoImpl postDao = new PostDaoImpl();
+    private final SupplierDaoImpl supplierDao = new SupplierDaoImpl();
 
 
     @FXML
     void initialize() {
         Main.setSupplierMenuController(this);
         setSupplierTable();
+        setAccess();
 
         supplierTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -91,6 +95,21 @@ public class SupplierMenuController {
                 }
             }
         });
+    }
+
+    private void setAccess() {
+        Post post = postDao.get(Main.getEmployee().getPostId());
+
+        backButton.setVisible(post.isShipmentAccess());
+        storageMapButton.setVisible(post.isStorageMapAccess());
+
+        shipmentButton.setVisible(post.isShipmentAccess());
+        materialButton.setVisible(post.isMaterialAccess());
+        employeeButton.setVisible(post.isEmployeeAccess());
+
+        newSupplierButton.setVisible(post.isShipperEdit());
+        editButton.setVisible(post.isShipperEdit());
+        deleteButton.setVisible(post.isShipperEdit());
     }
 
     public void setSupplierTable() {

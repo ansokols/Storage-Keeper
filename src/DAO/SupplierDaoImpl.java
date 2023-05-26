@@ -65,6 +65,7 @@ public class SupplierDaoImpl extends ConnectionManager implements MainDao<Shippe
     @Override
     public int save(Shipper supplier) {
         Integer id = null;
+
         try (
                 PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO supplier (name, address, phone_number, contact_person) VALUES (?, ?, ?, ?)",
@@ -91,6 +92,7 @@ public class SupplierDaoImpl extends ConnectionManager implements MainDao<Shippe
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return id;
     }
 

@@ -42,12 +42,13 @@ public class SendingMaterialEditController {
     @FXML
     private TableColumn<Material, Double> priceColumn;
 
+
     private static Shipment sending;
     private static ShipmentMaterial sendingMaterial;
-    private SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
-    private MaterialDaoImpl materialDao = new MaterialDaoImpl();
-    private TypeDaoImpl typeDao = new TypeDaoImpl();
-    private UnitDaoImpl unitDao = new UnitDaoImpl();
+    private final SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
+    private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
+    private final TypeDaoImpl typeDao = new TypeDaoImpl();
+    private final UnitDaoImpl unitDao = new UnitDaoImpl();
 
 
     @FXML

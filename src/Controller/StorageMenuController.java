@@ -1,12 +1,10 @@
 package Controller;
 
-import DAO.AreaDaoImpl;
-import DAO.CellDaoImpl;
-import DAO.CellTypeDaoImpl;
-import DAO.TypeDaoImpl;
+import DAO.*;
 import DTO.Area;
 import DTO.Cell;
 import DTO.CellType;
+import DTO.Post;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -60,16 +58,18 @@ public class StorageMenuController {
     private TableColumn<CellType, Integer> typeCapacityColumn;
 
 
-    private AreaDaoImpl areaDao = new AreaDaoImpl();
-    private CellDaoImpl cellDao = new CellDaoImpl();
-    private CellTypeDaoImpl cellTypeDao = new CellTypeDaoImpl();
-    private TypeDaoImpl typeDao = new TypeDaoImpl();
+    private final PostDaoImpl postDao = new PostDaoImpl();
+    private final AreaDaoImpl areaDao = new AreaDaoImpl();
+    private final CellDaoImpl cellDao = new CellDaoImpl();
+    private final CellTypeDaoImpl cellTypeDao = new CellTypeDaoImpl();
+    private final TypeDaoImpl typeDao = new TypeDaoImpl();
 
 
     @FXML
     void initialize() {
         Main.setStorageMenuController(this);
         setAreaTable();
+        setAccess();
 
         areaTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -227,6 +227,23 @@ public class StorageMenuController {
                 }
             }
         });
+    }
+
+    private void setAccess() {
+        Post post = postDao.get(Main.getEmployee().getPostId());
+
+        backButton.setVisible(post.isStorageMapAccess());
+        storageMapButton.setVisible(post.isStorageMapAccess());
+
+        shipmentButton.setVisible(post.isShipmentAccess());
+        materialButton.setVisible(post.isMaterialAccess());
+        employeeButton.setVisible(post.isEmployeeAccess());
+
+        newAreaButton.setVisible(post.isStorageEdit());
+        newCellButton.setVisible(post.isStorageEdit());
+        newTypeButton.setVisible(post.isStorageEdit());
+        editButton.setVisible(post.isStorageEdit());
+        deleteButton.setVisible(post.isStorageEdit());
     }
 
     public void setAreaTable() {

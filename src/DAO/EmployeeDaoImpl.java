@@ -74,6 +74,7 @@ public class EmployeeDaoImpl extends ConnectionManager implements MainDao<Employ
     @Override
     public int save(Employee employee) {
         Integer id = null;
+
         try (
                 PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO employee (name, email, phone_number, enrollment_date," +
@@ -105,6 +106,7 @@ public class EmployeeDaoImpl extends ConnectionManager implements MainDao<Employ
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return id;
     }
 

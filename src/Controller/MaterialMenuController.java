@@ -1,9 +1,11 @@
 package Controller;
 
 import DAO.MaterialDaoImpl;
+import DAO.PostDaoImpl;
 import DAO.TypeDaoImpl;
 import DAO.UnitDaoImpl;
 import DTO.Material;
+import DTO.Post;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -19,6 +21,8 @@ import java.util.Optional;
 public class MaterialMenuController {
     @FXML
     private Button backButton;
+    @FXML
+    private Button typeButton;
 
     @FXML
     private Button storageMapButton;
@@ -51,15 +55,18 @@ public class MaterialMenuController {
     @FXML
     private TableColumn<Material, Double> priceColumn;
 
-    private MaterialDaoImpl materialDao = new MaterialDaoImpl();
-    private TypeDaoImpl typeDao = new TypeDaoImpl();
-    private UnitDaoImpl unitDao = new UnitDaoImpl();
+
+    private final PostDaoImpl postDao = new PostDaoImpl();
+    private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
+    private final TypeDaoImpl typeDao = new TypeDaoImpl();
+    private final UnitDaoImpl unitDao = new UnitDaoImpl();
 
 
     @FXML
     void initialize() {
         Main.setMaterialMenuController(this);
         setMaterialTable();
+        setAccess();
 
         materialTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -67,7 +74,8 @@ public class MaterialMenuController {
                     deleteButton.setDisable(false);
                 });
 
-        backButton.setOnAction(event -> Main.newWindow("/View/Authorization.fxml"));
+        backButton.setOnAction(event -> Main.newWindow("/View/AuthorizationMenu.fxml"));
+        typeButton.setOnAction(event -> Main.newWindow("/View/TypeMenu.fxml"));
 
         storageMapButton.setOnAction(event -> Main.newWindow("/View/StorageMapMenu.fxml"));
         shipmentButton.setOnAction(event -> Main.newWindow("/View/SupplyMenu.fxml"));
@@ -100,6 +108,20 @@ public class MaterialMenuController {
                 }
             }
         });
+    }
+
+    private void setAccess() {
+        Post post = postDao.get(Main.getEmployee().getPostId());
+
+        typeButton.setVisible(post.isTypeAccess());
+        storageMapButton.setVisible(post.isStorageMapAccess());
+        shipmentButton.setVisible(post.isShipmentAccess());
+        materialButton.setVisible(post.isMaterialAccess());
+        employeeButton.setVisible(post.isEmployeeAccess());
+
+        newMaterialButton.setVisible(post.isMaterialEdit());
+        editButton.setVisible(post.isMaterialEdit());
+        deleteButton.setVisible(post.isMaterialEdit());
     }
 
     public void setMaterialTable() {

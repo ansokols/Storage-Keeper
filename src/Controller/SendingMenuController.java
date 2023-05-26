@@ -1,6 +1,7 @@
 package Controller;
 
 import DAO.*;
+import DTO.Post;
 import DTO.Shipment;
 import DTO.ShipmentMaterial;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -73,19 +74,22 @@ public class SendingMenuController {
     @FXML
     private TableColumn<ShipmentMaterial, Double> priceColumn;
 
-    private SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
-    private SendingDaoImpl sendingDao = new SendingDaoImpl();
-    private ClientDaoImpl clientDao = new ClientDaoImpl();
-    private EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
-    private MaterialDaoImpl materialDao = new MaterialDaoImpl();
-    private TypeDaoImpl typeDao = new TypeDaoImpl();
-    private UnitDaoImpl unitDao = new UnitDaoImpl();
+
+    private final PostDaoImpl postDao = new PostDaoImpl();
+    private final SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
+    private final SendingDaoImpl sendingDao = new SendingDaoImpl();
+    private final ClientDaoImpl clientDao = new ClientDaoImpl();
+    private final EmployeeDaoImpl employeeDao = new EmployeeDaoImpl();
+    private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
+    private final TypeDaoImpl typeDao = new TypeDaoImpl();
+    private final UnitDaoImpl unitDao = new UnitDaoImpl();
 
 
     @FXML
     void initialize() {
         Main.setSendingMenuController(this);
         setSendingTable();
+        setAccess();
 
         sendingTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> {
@@ -101,7 +105,7 @@ public class SendingMenuController {
             }
         });
 
-        backButton.setOnAction(event -> Main.newWindow("/View/Authorization.fxml"));
+        backButton.setOnAction(event -> Main.newWindow("/View/AuthorizationMenu.fxml"));
         clientButton.setOnAction(event -> Main.newWindow("/View/ClientMenu.fxml"));
 
         storageMapButton.setOnAction(event -> Main.newWindow("/View/StorageMapMenu.fxml"));
@@ -189,6 +193,22 @@ public class SendingMenuController {
                 }
             }
         });
+    }
+
+    private void setAccess() {
+        Post post = postDao.get(Main.getEmployee().getPostId());
+
+        clientButton.setVisible(post.isShipperAccess());
+        storageMapButton.setVisible(post.isStorageMapAccess());
+        supplyButton.setVisible(post.isShipmentAccess());
+        sendingButton.setVisible(post.isShipmentAccess());
+        materialButton.setVisible(post.isMaterialAccess());
+        employeeButton.setVisible(post.isEmployeeAccess());
+
+        newSendingButton.setVisible(post.isShipmentEdit());
+        newMaterialButton.setVisible(post.isShipmentEdit());
+        editButton.setVisible(post.isShipmentEdit());
+        deleteButton.setVisible(post.isShipmentEdit());
     }
 
     public void setSendingTable() {

@@ -18,6 +18,14 @@
                         <Cursor fx:constant="HAND" />
                     </cursor>
                 </Button>
+                <Button fx:id="postButton" layoutX="24.0" layoutY="528.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="70.0" style="-fx-border-color: yellow;" text="🔑" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="98.0">
+                    <font>
+                        <Font size="20.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="HAND" />
+                    </cursor>
+                </Button>
             <Button fx:id="editButton" disable="true" layoutX="849.0" layoutY="528.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="70.0" style="-fx-border-color: #0000ff;" text="🖍" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="98.0">
                <font>
                   <Font size="19.0" />

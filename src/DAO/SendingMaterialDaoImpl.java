@@ -48,6 +48,7 @@ public class SendingMaterialDaoImpl extends ConnectionManager implements Shipmen
     @Override
     public int save(ShipmentMaterial sendingMaterial) {
         Integer id = null;
+
         try (
                 PreparedStatement statement = connection.prepareStatement(
                         "INSERT INTO sending_material (loaded_amount, amount, unit_price, sending_id, material_id)" +
@@ -75,6 +76,7 @@ public class SendingMaterialDaoImpl extends ConnectionManager implements Shipmen
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return id;
     }
 

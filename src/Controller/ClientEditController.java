@@ -32,7 +32,7 @@ public class ClientEditController {
 
 
     private static Shipper client;
-    private ClientDaoImpl clientDao = new ClientDaoImpl();
+    private final ClientDaoImpl clientDao = new ClientDaoImpl();
 
 
     @FXML
