@@ -139,7 +139,7 @@ public class SupplyMenuController {
                     ((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image("file:Images" + File.separator + "logo.png"));
                     alert.setTitle("Storage Keeper");
                     alert.setHeaderText("Не можна редагувати цей товар у постачанні");
-                    alert.setContentText("Для цього товару вже розпочато процес укомплектації");
+                    alert.setContentText("Для цього товару вже розпочато процес комплектації");
                     alert.showAndWait();
                 }
             }
@@ -167,7 +167,7 @@ public class SupplyMenuController {
                     ((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image("file:Images" + File.separator + "logo.png"));
                     alert.setTitle("Storage Keeper");
                     alert.setHeaderText("Не можна видалити цей товар із постачання");
-                    alert.setContentText("Для цього товару вже розпочато процес укомплектації");
+                    alert.setContentText("Для цього товару вже розпочато процес комплектації");
                     alert.showAndWait();
                 }
             }
@@ -188,7 +188,7 @@ public class SupplyMenuController {
                     ((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image("file:Images" + File.separator + "logo.png"));
                     alert.setTitle("Storage Keeper");
                     alert.setHeaderText("Не можна видалити це постачання");
-                    alert.setContentText("Для товарів цього постачання вже розпочато процес укомплектації");
+                    alert.setContentText("Для товарів цього постачання вже розпочато процес комплектації");
                     alert.showAndWait();
                 }
             }

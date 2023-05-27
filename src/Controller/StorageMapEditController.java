@@ -50,8 +50,10 @@ public class StorageMapEditController {
     private final CellDaoImpl cellDao = new CellDaoImpl();
     private final CellTypeDaoImpl cellTypeDao = new CellTypeDaoImpl();
     private final MaterialDaoImpl materialDao = new MaterialDaoImpl();
-    private final SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
     private final SupplyMaterialDaoImpl supplyMaterialDao = new SupplyMaterialDaoImpl();
+    private final SendingMaterialDaoImpl sendingMaterialDao = new SendingMaterialDaoImpl();
+    SupplyDaoImpl supplyDao = new SupplyDaoImpl();
+    SendingDaoImpl sendingDao = new SendingDaoImpl();
 
     @FXML
     void initialize() {
@@ -99,7 +101,6 @@ public class StorageMapEditController {
     }
 
     private void saveData(){
-        //TODO Изменение статуса
         Material material = materialDao.get(shipmentMaterial.getMaterialId());
 
         switch (shipmentMode) {
@@ -109,6 +110,9 @@ public class StorageMapEditController {
                 material.setAmount(material.getAmount() + Integer.parseInt(amountTextField.getText()));
                 shipmentMaterial.setLoadedAmount(shipmentMaterial.getLoadedAmount() + Integer.parseInt(amountTextField.getText()));
 
+                Shipment supply = supplyDao.get(shipmentMaterial.getShipmentId());
+                supply.setStatus("configuration");
+                supplyDao.update(supply);
                 supplyMaterialDao.update(shipmentMaterial);
                 materialDao.update(material);
                 cellDao.update(cell);
@@ -122,6 +126,9 @@ public class StorageMapEditController {
                 material.setAmount(material.getAmount() - Integer.parseInt(amountTextField.getText()));
                 shipmentMaterial.setLoadedAmount(shipmentMaterial.getLoadedAmount() + Integer.parseInt(amountTextField.getText()));
 
+                Shipment sending = sendingDao.get(shipmentMaterial.getShipmentId());
+                sending.setStatus("configuration");
+                sendingDao.update(sending);
                 sendingMaterialDao.update(shipmentMaterial);
                 materialDao.update(material);
                 cellDao.update(cell);

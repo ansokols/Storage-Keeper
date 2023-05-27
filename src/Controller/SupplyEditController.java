@@ -68,7 +68,7 @@ public class SupplyEditController {
                             Timestamp.valueOf(datePicker.getValue().atStartOfDay()),
                             "created",
                             supplierTable.getSelectionModel().getSelectedItem().getShipperId(),
-                            1   //TODO
+                            Main.getEmployee().getEmployeeId()
                     );
 
                     Integer id = supplyDao.save(newSupply);
@@ -82,7 +82,7 @@ public class SupplyEditController {
                             Timestamp.valueOf(datePicker.getValue().atStartOfDay()),
                             supply.getStatus(),
                             null,
-                            1   //TODO
+                            Main.getEmployee().getEmployeeId()
                     );
 
                     if (supplierTable.getSelectionModel().getSelectedItem() == null) {

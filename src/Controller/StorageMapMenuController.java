@@ -8,19 +8,14 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.stage.Modality;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 public class StorageMapMenuController {
@@ -43,7 +38,14 @@ public class StorageMapMenuController {
     @FXML
     private Button sendingButton;
     @FXML
+    private Button filterButton;
+    @FXML
+    private Button autoButton;
+    @FXML
     private Button storeButton;
+
+    @FXML
+    private Label filterLabel;
 
     @FXML
     private VBox areasVBox;
@@ -67,6 +69,7 @@ public class StorageMapMenuController {
 
     private AnchorPane currentCellPane;
     private String shipmentMode = "supply";
+    private boolean isFilterOn = false;
     private final int numRows = 3;
 
     private final PostDaoImpl postDao = new PostDaoImpl();
@@ -87,7 +90,26 @@ public class StorageMapMenuController {
         setAreas();
         setAccess();
 
-        materialTable.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> enableStoreButton());
+        shipmentComboBox.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldValue, newValue) -> {
+                    if (newValue != null) {
+                        storeButton.setDisable(true);
+                        autoButton.setDisable(false);
+                        setMaterialTable();
+                    }
+                });
+
+        materialTable.getSelectionModel().selectedItemProperty().addListener(
+            (observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    if (isFilterOn) {
+                        setAreas();
+                    } else {
+                        enableStoreButton();
+                    }
+                }
+
+            });
 
         backButton.setOnAction(event -> Main.newWindow("/View/AuthorizationMenu.fxml"));
         storageButton.setOnAction(event -> Main.newWindow("/View/StorageMenu.fxml"));
@@ -103,6 +125,7 @@ public class StorageMapMenuController {
             sendingButton.setDisable(false);
             sendingButton.setDefaultButton(false);
             storeButton.setDisable(true);
+            autoButton.setDisable(true);
 
             shipmentMode = "supply";
             storeButton.setText("\uD83D\uDCE5");
@@ -115,66 +138,35 @@ public class StorageMapMenuController {
             sendingButton.setDisable(true);
             sendingButton.setDefaultButton(true);
             storeButton.setDisable(true);
+            autoButton.setDisable(true);
 
             shipmentMode = "sending";
             storeButton.setText("\uD83D\uDCE4");
             shipmentComboBox.setItems(FXCollections.observableArrayList(sendingDao.getAll()));
         });
 
+        filterButton.setOnAction(event -> {
+            if (isFilterOn) {
+                isFilterOn = false;
+                filterLabel.setText("Викл");
+                filterLabel.setTextFill(Color.RED);
+                setAreas();
+            } else {
+                isFilterOn = true;
+                filterLabel.setText("Вкл");
+                filterLabel.setTextFill(Color.GREEN);
+                setAreas();
+            }
+        });
+
         storeButton.setOnAction(event -> {
             Cell cell = cellDao.get(Integer.parseInt(currentCellPane.getId()));
             StorageMapEditController.initializeData(shipmentMode, cell, materialTable.getSelectionModel().getSelectedItem());
-
-            Stage stage = new Stage();
-            Parent root = null;
-            try {
-                root = FXMLLoader.load(getClass().getResource("/View/StorageMapEdit.fxml"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            stage.setTitle("Storage Keeper");
-            stage.getIcons().add(new Image("file:images" + File.separator + "logo.png"));
-            stage.setScene(new Scene(root));
-            stage.setResizable(false);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setOnHidden(hideEvent -> {
-                setAreas();
-                materialTable.refresh();
-            });
-            stage.show();
+            Main.newModalWindow("/View/StorageMapEdit.fxml");
         });
 
-        shipmentComboBox.setOnAction(event -> {
-            storeButton.setDisable(true);
-            List<ShipmentMaterial> tempMats = null;
-
-            if (shipmentComboBox.getSelectionModel().getSelectedItem() != null) {
-                switch (shipmentMode) {
-                    case "supply" ->
-                            tempMats = supplyMaterialDao.getAllByShipment(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
-                    case "sending" ->
-                            tempMats = sendingMaterialDao.getAllByShipment(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
-                }
-
-                materialTypeColumn.setCellValueFactory(cellData ->
-                        new SimpleStringProperty(typeDao.get(materialDao.get(cellData.getValue().getMaterialId()).getTypeId()).getName())
-                );
-                materialNameColumn.setCellValueFactory(cellData ->
-                        new SimpleStringProperty(materialDao.get(cellData.getValue().getMaterialId()).getName())
-                );
-                materialManufacturerColumn.setCellValueFactory(cellData ->
-                        new SimpleStringProperty(materialDao.get(cellData.getValue().getMaterialId()).getManufacturer())
-                );
-                materialLoadedAmountColumn.setCellValueFactory(cellData ->
-                        new SimpleIntegerProperty(cellData.getValue().getLoadedAmount()).asObject()
-                );
-                materialAmountColumn.setCellValueFactory(cellData ->
-                        new SimpleIntegerProperty(cellData.getValue().getAmount()).asObject()
-                );
-                materialTable.setItems(FXCollections.observableArrayList(tempMats));
-            } else {
-                materialTable.getItems().clear();
-            }
+        autoButton.setOnAction(event -> {
+            autoStore();
         });
     }
 
@@ -194,6 +186,12 @@ public class StorageMapMenuController {
         areasVBox.getChildren().clear();
         currentCellPane = null;
         storeButton.setDisable(true);
+
+        if (isFilterOn) {
+            if (materialTable.getSelectionModel().getSelectedItem() == null) {
+                return;
+            }
+        }
 
         String emptyCellStyle =
                 "-fx-background-radius: 10; -fx-background-color: #e6e6e6;" +
@@ -219,9 +217,14 @@ public class StorageMapMenuController {
             gridPane.setPadding(new Insets(0, 10, 10, 10));
 
             List<Cell> tempCellList = cellDao.getAllByArea(area.getAreaId());
-            int j = 0;
+            int cellIndex = 0;
+            int columnIndex = 0;
             for (int i = 0; i < tempCellList.size(); i++) {
-                if (i % numRows == 0) j++;
+                if (isFilterOn) {
+                    if (!checkMatching(tempCellList.get(i), materialTable.getSelectionModel().getSelectedItem())) {
+                        continue;
+                    }
+                }
 
                 Label cellNameLabel = new Label(tempCellList.get(i).getName());
                 cellNameLabel.prefHeight(20);
@@ -305,18 +308,55 @@ public class StorageMapMenuController {
                     currentCellPane = cellPane;
                     enableStoreButton();
                 });
-                gridPane.add(cellPane, (i % numRows), j);
+
+                if (cellIndex % numRows == 0) columnIndex++;
+                gridPane.add(cellPane, (cellIndex % numRows), columnIndex);
+                cellIndex++;
             }
 
-            Label groupLabel = new Label(area.getName());
-            groupLabel.prefHeight(25);
-            groupLabel.setPadding(new Insets(5, 10, 5, 10));
-            groupLabel.setStyle("-fx-font: 20 arial;");
-            AnchorPane areaPane = new AnchorPane(gridPane);
-            areaPane.setId(String.valueOf(area.getAreaId()));
-            VBox vBox = new VBox(new AnchorPane(groupLabel), areaPane);
-            vBox.setStyle("-fx-border-width: 2; -fx-border-radius: 10; -fx-border-color: grey;");
-            areasVBox.getChildren().add(new AnchorPane(vBox));
+            if (!gridPane.getChildren().isEmpty()) {
+                Label groupLabel = new Label(area.getName());
+                groupLabel.prefHeight(25);
+                groupLabel.setPadding(new Insets(5, 10, 5, 10));
+                groupLabel.setStyle("-fx-font: 20 arial;");
+                AnchorPane areaPane = new AnchorPane(gridPane);
+                areaPane.setId(String.valueOf(area.getAreaId()));
+                VBox vBox = new VBox(new AnchorPane(groupLabel), areaPane);
+                vBox.setStyle("-fx-border-width: 2; -fx-border-radius: 10; -fx-border-color: grey;");
+                areasVBox.getChildren().add(new AnchorPane(vBox));
+            }
+        }
+    }
+
+    private void setMaterialTable() {
+        List<ShipmentMaterial> tempMats = null;
+
+        if (shipmentComboBox.getSelectionModel().getSelectedItem() != null) {
+            switch (shipmentMode) {
+                case "supply" ->
+                        tempMats = supplyMaterialDao.getAllByShipment(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
+                case "sending" ->
+                        tempMats = sendingMaterialDao.getAllByShipment(shipmentComboBox.getSelectionModel().getSelectedItem().getShipmentId());
+            }
+
+            materialTypeColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(typeDao.get(materialDao.get(cellData.getValue().getMaterialId()).getTypeId()).getName())
+            );
+            materialNameColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(materialDao.get(cellData.getValue().getMaterialId()).getName())
+            );
+            materialManufacturerColumn.setCellValueFactory(cellData ->
+                    new SimpleStringProperty(materialDao.get(cellData.getValue().getMaterialId()).getManufacturer())
+            );
+            materialLoadedAmountColumn.setCellValueFactory(cellData ->
+                    new SimpleIntegerProperty(cellData.getValue().getLoadedAmount()).asObject()
+            );
+            materialAmountColumn.setCellValueFactory(cellData ->
+                    new SimpleIntegerProperty(cellData.getValue().getAmount()).asObject()
+            );
+            materialTable.setItems(FXCollections.observableArrayList(tempMats));
+        } else {
+            materialTable.getItems().clear();
         }
     }
 
@@ -327,7 +367,7 @@ public class StorageMapMenuController {
         }
     }
 
-    /*public*/ private boolean checkMatching(Cell cell, ShipmentMaterial shipmentMaterial) {
+    private boolean checkMatching(Cell cell, ShipmentMaterial shipmentMaterial) {
         Material material = materialDao.get(shipmentMaterial.getMaterialId());
 
         switch (shipmentMode) {
@@ -370,5 +410,216 @@ public class StorageMapMenuController {
                 }
                 return true;
         }
+    }
+
+    private void autoStore() {
+        if (shipmentComboBox.getSelectionModel().getSelectedItem() == null) {
+            return;
+        }
+
+        String info = null;
+        String successText = "";
+        String errorText = "";
+        switch (shipmentMode) {
+            case "supply" -> {
+                info = fromSupplyToStorage();
+                successText = "Товари успішно розміщені на складі";
+                errorText = "На складі недостатньо вільного місця";
+            }
+            case "sending" -> {
+                info = fromStorageToSending();
+                successText = "Товари успішно укомплектовані у відправку";
+                errorText = "На складі недостатньо необхідних товарів";
+            }
+        }
+
+        if (info != null) {
+            InfoMenuController.initializeData(successText, shipmentComboBox.getSelectionModel().getSelectedItem().getName(), info);
+            Main.newModalWindow("/View/InfoMenu.fxml");
+            setMaterialTable();
+            setAreas();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            ((Stage)alert.getDialogPane().getScene().getWindow()).getIcons().add(new Image("file:Images" + File.separator + "logo.png"));
+            alert.setTitle("Storage Keeper");
+            alert.setHeaderText(errorText);
+            alert.showAndWait();
+        }
+    }
+
+    private String fromSupplyToStorage() {
+        StringBuilder info = new StringBuilder();
+
+        Shipment shipment = shipmentComboBox.getSelectionModel().getSelectedItem();
+        List<ShipmentMaterial> shipmentMaterialList = supplyMaterialDao.getAllByShipment(shipment.getShipmentId());
+        List<Cell> cellList = cellDao.getAll();
+        List<ShipmentMaterial> updatedShipmentMaterialList = new ArrayList<>();
+        List<Cell> updatedCellList = new ArrayList<>();
+
+        info.append("\t\t\tПостачання №")
+                .append(shipment.getShipmentId())
+                .append(" \"")
+                .append(shipment.getName())
+                .append("\"");
+
+        for (ShipmentMaterial shipmentMaterial : shipmentMaterialList) {
+            boolean isEnoughSpace = false;
+            int shipmentMaterialUnloadedAmount = shipmentMaterial.getAmount() - shipmentMaterial.getLoadedAmount();
+
+            if (shipmentMaterialUnloadedAmount == 0) {
+                continue;
+            }
+
+            for (Cell cell : cellList) {
+                if (checkMatching(cell, shipmentMaterial)) {
+                    cell.setMaterialId(shipmentMaterial.getMaterialId());
+
+                    int typeId = materialDao.get(shipmentMaterial.getMaterialId()).getTypeId();
+                    int cellCapacity = cellTypeDao.get(cell.getCellId(), typeId).getCapacity();
+                    int cellFreeSpace = cellCapacity - cell.getOccupancy();
+                    shipmentMaterialUnloadedAmount = shipmentMaterial.getAmount() - shipmentMaterial.getLoadedAmount();
+
+                    if (shipmentMaterialUnloadedAmount <= cellFreeSpace) {
+                        info.append("\r\n")
+                                .append(materialDao.get(shipmentMaterial.getMaterialId()).getName())
+                                .append(" [")
+                                .append(shipmentMaterialUnloadedAmount)
+                                .append(" ")
+                                .append(unitDao.get(materialDao.get(shipmentMaterial.getMaterialId()).getUnitId()).getName())
+                                .append("]")
+                                .append("\t――>\t")
+                                .append("Ділянка \"")
+                                .append(areaDao.get(cell.getAreaId()).getName())
+                                .append("\", комірка \"")
+                                .append(cell.getName())
+                                .append("\"");
+
+                        shipmentMaterial.setLoadedAmount(shipmentMaterial.getAmount());
+                        cell.setOccupancy(cell.getOccupancy() + shipmentMaterialUnloadedAmount);
+                        isEnoughSpace = true;
+                        updatedShipmentMaterialList.add(shipmentMaterial);
+                        updatedCellList.add(cell);
+                        break;
+                    } else {
+                        info.append("\r\n")
+                                .append(materialDao.get(shipmentMaterial.getMaterialId()).getName())
+                                .append(" [")
+                                .append(cellCapacity - cell.getOccupancy())
+                                .append(" ")
+                                .append(unitDao.get(materialDao.get(shipmentMaterial.getMaterialId()).getUnitId()).getName())
+                                .append("]")
+                                .append("\t――>\t")
+                                .append("Ділянка \"")
+                                .append(areaDao.get(cell.getAreaId()).getName())
+                                .append("\", комірка \"")
+                                .append(cell.getName())
+                                .append("\"");
+
+                        shipmentMaterial.setLoadedAmount(shipmentMaterial.getLoadedAmount() + cellFreeSpace);
+                        cell.setOccupancy(cellCapacity);
+                        updatedCellList.add(cell);
+                    }
+                }
+            }
+
+            if (!isEnoughSpace) {
+                return null;
+            }
+        }
+
+        shipment.setStatus("loaded");
+        supplyDao.update(shipment);
+        for (ShipmentMaterial shipmentMaterial : updatedShipmentMaterialList) {
+            supplyMaterialDao.update(shipmentMaterial);
+        }
+        for (Cell cell : updatedCellList) {
+            cellDao.update(cell);
+        }
+
+        return info.toString();
+    }
+
+    private String fromStorageToSending() {
+        StringBuilder info = new StringBuilder();
+
+        Shipment shipment = shipmentComboBox.getSelectionModel().getSelectedItem();
+        List<ShipmentMaterial> shipmentMaterialList = sendingMaterialDao.getAllByShipment(shipment.getShipmentId());
+        List<Cell> cellList = cellDao.getAll();
+        List<ShipmentMaterial> updatedShipmentMaterialList = new ArrayList<>();
+        List<Cell> updatedCellList = new ArrayList<>();
+
+        info.append("\t\t\tВідправка №")
+                .append(shipment.getShipmentId())
+                .append(" \"")
+                .append(shipment.getName())
+                .append("\"");
+
+        for (ShipmentMaterial shipmentMaterial : shipmentMaterialList) {
+            boolean isEnoughMaterial = false;
+            int shipmentMaterialUnloadedAmount = shipmentMaterial.getAmount() - shipmentMaterial.getLoadedAmount();
+
+            if (shipmentMaterialUnloadedAmount == 0) {
+                continue;
+            }
+
+            for (Cell cell : cellList) {
+                if (checkMatching(cell, shipmentMaterial)) {
+                    shipmentMaterialUnloadedAmount = shipmentMaterial.getAmount() - shipmentMaterial.getLoadedAmount();
+
+                    if (shipmentMaterialUnloadedAmount <= cell.getOccupancy()) {
+                        info.append("\r\nДілянка \"")
+                                .append(areaDao.get(cell.getAreaId()).getName())
+                                .append("\", комірка \"")
+                                .append(cell.getName())
+                                .append("\"\t――>\t")
+                                .append(materialDao.get(shipmentMaterial.getMaterialId()).getName())
+                                .append(" [")
+                                .append(shipmentMaterialUnloadedAmount)
+                                .append(" ")
+                                .append(unitDao.get(materialDao.get(shipmentMaterial.getMaterialId()).getUnitId()).getName())
+                                .append("]");
+
+                        shipmentMaterial.setLoadedAmount(shipmentMaterial.getAmount());
+                        cell.setOccupancy(cell.getOccupancy() - shipmentMaterialUnloadedAmount);
+                        isEnoughMaterial = true;
+                        updatedShipmentMaterialList.add(shipmentMaterial);
+                        updatedCellList.add(cell);
+                        break;
+                    } else {
+                        info.append("\r\nДілянка \"")
+                                .append(areaDao.get(cell.getAreaId()).getName())
+                                .append("\", комірка \"")
+                                .append(cell.getName())
+                                .append("\"\t――>\t")
+                                .append(materialDao.get(shipmentMaterial.getMaterialId()).getName())
+                                .append(" [")
+                                .append(cell.getOccupancy())
+                                .append(" ")
+                                .append(unitDao.get(materialDao.get(shipmentMaterial.getMaterialId()).getUnitId()).getName())
+                                .append("]");
+
+                        shipmentMaterial.setLoadedAmount(shipmentMaterial.getLoadedAmount() + cell.getOccupancy());
+                        cell.setMaterialId(0);
+                        cell.setOccupancy(0);
+                        updatedCellList.add(cell);
+                    }
+                }
+            }
+
+            if (!isEnoughMaterial) {
+                return null;
+            }
+        }
+
+        shipment.setStatus("loaded");
+        sendingDao.update(shipment);
+        for (ShipmentMaterial shipmentMaterial : updatedShipmentMaterialList) {
+            sendingMaterialDao.update(shipmentMaterial);
+        }
+        for (Cell cell : updatedCellList) {
+            cellDao.update(cell);
+        }
+
+        return info.toString();
     }
 }

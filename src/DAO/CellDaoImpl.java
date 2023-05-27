@@ -37,6 +37,33 @@ public class CellDaoImpl extends ConnectionManager implements CellDao<Cell> {
     }
 
     @Override
+    public List<Cell> getAll() {
+        List<Cell> cellList = new ArrayList<>();
+
+        try (
+                PreparedStatement statement = connection.prepareStatement(
+                        "SELECT cell.* FROM area" +
+                                " JOIN cell ON cell.area_id = area.area_id"
+                )
+        ){
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                cellList.add(new Cell(
+                        resultSet.getInt("cell_id"),
+                        resultSet.getString("name"),
+                        resultSet.getInt("occupancy"),
+                        resultSet.getInt("area_id"),
+                        resultSet.getInt("material_id")
+                ));
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return cellList;
+    }
+
+    @Override
     public List<Cell> getAllByArea(int areaId) {
         List<Cell> cellList = new ArrayList<>();
 
