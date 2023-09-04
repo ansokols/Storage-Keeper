@@ -1,5 +1,5 @@
 # Storage Keeper
-##Overview
+## Overview
 Storage Keeper is the warehouse automation software.
 Among the main use cases are:
 - receiving goods from suppliers;
@@ -11,7 +11,7 @@ Among the main use cases are:
 - suppliers accounting;
 - clients accounting;
 - employee accounting
-##Stack
+## Stack
 - Java
 - JavaFX
 - JDBC
